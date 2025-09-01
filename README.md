@@ -19,3 +19,7 @@ This  "HPC" variant of the challnge invites you to use Eclipse Symphony, Eclipse
 ## OTA Updates for Robots
 
 This  "ROS" variant of the challenge invites you to use Eclipse Symphony, Eclipse Muto and Eclipse uProtocol.  
+
+### OTA with Eclipse Ankaios
+
+To run the OTA variant with the Eclipse Ankaios embedded software orchestrator, please follow the instructions of the [README.md](./ankaios/README.md) inside the `ankaios` folder.
