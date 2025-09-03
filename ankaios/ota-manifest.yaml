@@ -1,0 +1,25 @@
+apiVersion: v0.1
+workloads:
+  mqtt_broker:
+    runtime: podman
+    agent: hpc1
+    restartPolicy: ON_FAILURE
+    runtimeConfig: |
+      image: docker.io/eclipse-mosquitto:2.0.22
+      commandOptions: ["--net=host"]
+  symphony_agent:
+    runtime: podman
+    agent: hpc1
+    restartPolicy: ON_FAILURE
+    # the image with the command args must be replaced with the real symphony agent image later
+    runtimeConfig: |
+      image: ghcr.io/eclipse-ankaios/tests/alpine:latest
+      commandArgs: [ "sh", "-c", "echo 'I am the symphony target provider.'" ]
+  virtual_ecu:
+    runtime: podman
+    agent: hpc1
+    restartPolicy: NEVER
+    # the image with the command args must be replaced with the virtual ECU image
+    runtimeConfig: |
+      image: ghcr.io/eclipse-ankaios/tests/alpine:latest
+      commandArgs: [ "sh", "-c", "trap 'echo; exit' SIGINT SIGTERM; while true; do echo 'Hello from ECU 1'; sleep 1; done" ]
