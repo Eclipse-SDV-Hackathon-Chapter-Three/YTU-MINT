@@ -82,3 +82,10 @@ Optionally, stop the Ankaios server and agent, when a complete shutdown of all c
 ```shell
 sudo systemctl stop ank-server ank-agent
 ```
+
+---
+### Eclipse Projects Referenced
+- [Eclipse Symphony](https://projects.eclipse.org/projects/automotive.symphony)
+- [Eclipse uProtocol](https://projects.eclipse.org/projects/automotive.uprotocol)
+- [Eclipse Ankaios](https://eclipse-ankaios.github.io/ankaios/)
+- [Eclipse Muto](https://projects.eclipse.org/projects/automotive.muto)
