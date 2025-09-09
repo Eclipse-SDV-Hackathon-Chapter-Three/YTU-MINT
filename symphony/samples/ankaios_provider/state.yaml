@@ -1,0 +1,111 @@
+apiVersion: v0.1
+workloads:
+  symphony:
+    runtime: podman
+    agent: agent_A
+    restartPolicy: ALWAYS    
+    tags:
+      - key: owner
+        value: Symphony
+    configs:
+      bin_config: bin_config
+    files:
+      - mountPoint: "/symphony-agent.json"
+        binaryData: "{{bin_config}}"
+    runtimeConfig: |
+      image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.38
+      commandOptions: ["-e","CONFIG=/symphony-agent.json"]
+configs:
+  agent_config: |
+    {
+      "siteInfo": {
+        "siteId": "agent",
+        "currentSite": {
+          "baseUrl": "",
+          "username": "",
+          "password": ""
+        }
+      },
+      "api": {
+        "vendors": [
+          {
+            "type": "vendors.echo",
+            "route": "greetings",
+            "managers": []
+          },
+          {
+            "type": "vendors.solution",
+            "loopInterval": 15,
+            "route": "solution",
+            "managers": [
+              {
+                "name": "solution-manager",
+                "type": "managers.symphony.solution",
+                "properties": {
+                  "providers.persistentstate": "mem-state",                
+                  "providers.config": "mock-config",  
+                  "providers.secret": "mock-secret",
+                  "isTarget": "true",
+                  "targetNames": "test-target",
+                  "poll.enabled": "true"              
+                },
+                "providers": {
+                  "mem-state": {
+                    "type": "providers.state.memory",
+                    "config": {}
+                  },              
+                  "mock-config": {
+                    "type": "providers.config.mock",
+                    "config": {}
+                  },
+                  "mock-secret": {
+                    "type": "providers.secret.mock",
+                    "config": {}
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "bindings": [
+        {
+          "type": "bindings.mqtt",
+          "config": {
+            "brokerAddress": "tcp://localhost:1883",
+            "clientID": "my-remote-agent",
+            "requestTopic": "coa-request",
+            "responseTopic": "coa-response"
+          }
+        }
+      ]
+    }
+  bin_config: |
+    ewogICJzaXRlSW5mbyI6IHsKICAgICJzaXRlSWQiOiAiaHEiLAogICAgImN1cnJlbnRTaXRlIjog
+    ewogICAgICAiYmFzZVVybCI6ICIiLAogICAgICAidXNlcm5hbWUiOiAiIiwKICAgICAgInBhc3N3
+    b3JkIjogIiIKICAgIH0KICB9LAogICJhcGkiOiB7CiAgICAidmVuZG9ycyI6IFsKICAgICAgewog
+    ICAgICAgICJ0eXBlIjogInZlbmRvcnMuZWNobyIsCiAgICAgICAgInJvdXRlIjogImdyZWV0aW5n
+    cyIsCiAgICAgICAgIm1hbmFnZXJzIjogW10KICAgICAgfSwKICAgICAgewogICAgICAgICJ0eXBl
+    IjogInZlbmRvcnMuc29sdXRpb24iLAogICAgICAgICJsb29wSW50ZXJ2YWwiOiAxNSwKICAgICAg
+    ICAicm91dGUiOiAic29sdXRpb24iLAogICAgICAgICJtYW5hZ2VycyI6IFsKICAgICAgICAgIHsK
+    ICAgICAgICAgICAgIm5hbWUiOiAic29sdXRpb24tbWFuYWdlciIsCiAgICAgICAgICAgICJ0eXBl
+    IjogIm1hbmFnZXJzLnN5bXBob255LnNvbHV0aW9uIiwKICAgICAgICAgICAgInByb3BlcnRpZXMi
+    OiB7CiAgICAgICAgICAgICAgInByb3ZpZGVycy5wZXJzaXN0ZW50c3RhdGUiOiAibWVtLXN0YXRl
+    IiwgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgInByb3ZpZGVycy5jb25maWciOiAibW9j
+    ay1jb25maWciLCAgCiAgICAgICAgICAgICAgInByb3ZpZGVycy5zZWNyZXQiOiAibW9jay1zZWNy
+    ZXQiLAogICAgICAgICAgICAgICJpc1RhcmdldCI6ICJ0cnVlIiwKICAgICAgICAgICAgICAidGFy
+    Z2V0TmFtZXMiOiAidGVzdC10YXJnZXQiLAogICAgICAgICAgICAgICJwb2xsLmVuYWJsZWQiOiAi
+    dHJ1ZSIgICAgICAgICAgICAgIAogICAgICAgICAgICB9LAogICAgICAgICAgICAicHJvdmlkZXJz
+    IjogewogICAgICAgICAgICAgICJtZW0tc3RhdGUiOiB7CiAgICAgICAgICAgICAgICAidHlwZSI6
+    ICJwcm92aWRlcnMuc3RhdGUubWVtb3J5IiwKICAgICAgICAgICAgICAgICJjb25maWciOiB7fQog
+    ICAgICAgICAgICAgIH0sICAgICAgICAgICAgICAKICAgICAgICAgICAgICAibW9jay1jb25maWci
+    OiB7CiAgICAgICAgICAgICAgICAidHlwZSI6ICJwcm92aWRlcnMuY29uZmlnLm1vY2siLAogICAg
+    ICAgICAgICAgICAgImNvbmZpZyI6IHt9CiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAi
+    bW9jay1zZWNyZXQiOiB7CiAgICAgICAgICAgICAgICAidHlwZSI6ICJwcm92aWRlcnMuc2VjcmV0
+    Lm1vY2siLAogICAgICAgICAgICAgICAgImNvbmZpZyI6IHt9CiAgICAgICAgICAgICAgfQogICAg
+    ICAgICAgICB9CiAgICAgICAgICB9CiAgICAgICAgXQogICAgICB9CiAgICBdCiAgfSwKICAiYmlu
+    ZGluZ3MiOiBbCiAgICB7CiAgICAgICJ0eXBlIjogImJpbmRpbmdzLm1xdHQiLAogICAgICAiY29u
+    ZmlnIjogewogICAgICAgICJicm9rZXJBZGRyZXNzIjogInRjcDovLzIwLjExOC4xNDYuMTk4OjE4
+    ODMiLAogICAgICAgICJjbGllbnRJRCI6ICJjb2EtdGVzdC0yIiwKICAgICAgICAicmVxdWVzdFRv
+    cGljIjogImNvYS1yZXF1ZXN0IiwKICAgICAgICAicmVzcG9uc2VUb3BpYyI6ICJjb2EtcmVzcG9u
+    c2UiCiAgICAgIH0KICAgIH0KICBdCn0=
