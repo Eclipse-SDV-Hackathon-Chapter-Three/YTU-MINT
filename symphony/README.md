@@ -1,6 +1,6 @@
 [Eclipse Symphony](https://projects.eclipse.org/projects/iot.symphony) brings consistent workload and device management experience to heterogeneous edge. It's an extensible management plane that allows different types of workloads and devices to be incorporated into consistent management workflows across cloud and edge.
 
-For the hackathon, Eclipse Symphony version [0.48-proxy.37](https://github.com/eclipse-symphony/symphony/releases/tag/0.48-proxy.37) is used. To facilitate setups, we provide a Docker Compose file in the repo that you can use to launch a standalone Symphony environment, together with a MQTT broker (based on [Eclipse Mosquitto](https://mosquitto.org/)) and a Symphony read-only portal. 
+For the hackathon, Eclipse Symphony version [0.48-proxy.38](https://github.com/eclipse-symphony/symphony/releases/tag/0.48-proxy.38) is used. To facilitate setups, we provide a Docker Compose file in the repo that you can use to launch a standalone Symphony environment, together with a MQTT broker (based on [Eclipse Mosquitto](https://mosquitto.org/)) and a Symphony read-only portal. 
 
 ## Prerequisites
 
@@ -28,6 +28,6 @@ docker compose up -d
 
 ## Next Steps
 
-* Write a custom Symphony Target provider using Rust
+* [Write a custom Symphony Target provider using Rust](rust_provider.md)
 * Setup a Symphony Agent via Ankaios
 * Setup a standalone Symphony Agent

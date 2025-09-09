@@ -90,3 +90,7 @@ This ROS variant highlights the flexibility and power of Symphony, uProtocol, an
 - **Multi-Site OTA Distribution:** Central orchestrator distributes updates to regional installations (e.g., Berlin, Porto), which then push updates to local fleets. Demonstrates geographic deployment management.
 - **Partial Update & Rollback:** Implement partial OTA updates; if issues are detected, initiate rollback using uProtocol for granular control and status reporting.
 - **Device Provisioning & Initial Configuration:** Use Symphony and uServices to provision new vehicles, deploy initial configurations, and prepare them for future OTA updates.
+
+### Getting Started
+
+Follow intructions [here](./symphony/README.md) to set up Eclipse Symphony using Docker Compose with a single command line.
