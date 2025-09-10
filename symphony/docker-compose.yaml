@@ -1,7 +1,7 @@
 
 services:
   symphony-api:
-    image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.38
+    image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.39
     container_name: symphony-api
     ports:
       - "8082:8082"
@@ -14,7 +14,7 @@ services:
       - ./providers:/extensions
     restart: unless-stopped
   symphony-portal:
-    image: ghcr.io/eclipse-symphony/symphony-portal:0.48-proxy.38
+    image: ghcr.io/eclipse-symphony/symphony-portal:0.48-proxy.39
     container_name: symphony-portal
     ports:
       - "3000:3000"

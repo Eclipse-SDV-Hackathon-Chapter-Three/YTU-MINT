@@ -46,7 +46,7 @@
               "providers.secret": "mock-secret",
               "providers.keylock": "mem-keylock",
               "isTarget": "true",
-              "targetNames": "pc-target",
+              "targetNames": "ankaios-target",
               "poll.enabled": "true"              
             },
             "providers": {
@@ -72,8 +72,8 @@
                 "type": "providers.target.rust",
                 "config": {
                   "name": "ankaios-type",
-                  "libFile": "./providers/libankaios.so",
-                  "libHash": "fc8dcf15ebe24d6eae0a71345dcb9e01dcb19fd0fabf232b6aa512697a064ff6"
+                  "libFile": "/extensions/libankaios.so",
+                  "libHash": "7a8e1dd87a1a9bdee30e4e3a8157714861d70dcb8786fda57f2c01ae99a2e047"
                 }
               }
             }
