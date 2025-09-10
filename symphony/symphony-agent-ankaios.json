@@ -1,6 +1,6 @@
 {
   "siteInfo": {
-    "siteId": "hq",
+    "siteId": "my-agent",
     "currentSite": {
       "baseUrl": "",
       "username": "",
@@ -8,6 +8,24 @@
     }
   },
   "api": {
+    "pubsub": {
+      "shared": true,
+      "provider": {
+        "type": "providers.pubsub.memory",
+        "config": {}
+      }
+    },
+    "keylock": {
+      "shared": true,
+      "provider": {      
+        "type": "providers.keylock.memory",
+        "config": {
+          "mode": "Global",
+          "cleanInterval" : 30,
+          "purgeDuration" : 43200
+        }
+      }
+    },
     "vendors": [
       {
         "type": "vendors.echo",
@@ -26,15 +44,22 @@
               "providers.persistentstate": "mem-state",                
               "providers.config": "mock-config",  
               "providers.secret": "mock-secret",
+              "providers.keylock": "mem-keylock",
               "isTarget": "true",
-              "targetNames": "test-target",
+              "targetNames": "pc-target",
               "poll.enabled": "true"              
             },
             "providers": {
               "mem-state": {
                 "type": "providers.state.memory",
                 "config": {}
-              },              
+              },     
+              "mem-keylock": {
+                "type": "providers.keylock.memory",
+                "config": {
+                  "mode" : "Shared"
+                }
+              },         
               "mock-config": {
                 "type": "providers.config.mock",
                 "config": {}
@@ -42,6 +67,14 @@
               "mock-secret": {
                 "type": "providers.secret.mock",
                 "config": {}
+              },
+              "ankaios":{
+                "type": "providers.target.rust",
+                "config": {
+                  "name": "ankaios-type",
+                  "libFile": "./providers/libankaios.so",
+                  "libHash": "fc8dcf15ebe24d6eae0a71345dcb9e01dcb19fd0fabf232b6aa512697a064ff6"
+                }
               }
             }
           }
@@ -53,8 +86,8 @@
     {
       "type": "bindings.mqtt",
       "config": {
-        "brokerAddress": "tcp://20.118.146.198:1883",
-        "clientID": "coa-test-2",
+        "brokerAddress": "tcp://localhost:1883",
+        "clientID": "my-agent",
         "requestTopic": "coa-request",
         "responseTopic": "coa-response"
       }
