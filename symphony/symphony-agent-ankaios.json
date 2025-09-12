@@ -73,7 +73,7 @@
                 "config": {
                   "name": "ankaios-type",
                   "libFile": "/extensions/libankaios.so",
-                  "libHash": "7a8e1dd87a1a9bdee30e4e3a8157714861d70dcb8786fda57f2c01ae99a2e047"
+                  "libHash": "4a688c9c80adf6d10d52eab1aca0877832f2f070aee233c271f16536941eec0b"
                 }
               }
             }
@@ -86,7 +86,7 @@
     {
       "type": "bindings.mqtt",
       "config": {
-        "brokerAddress": "tcp://localhost:1883",
+        "brokerAddress": "tcp://host.containers.internal:1883",
         "clientID": "my-agent",
         "requestTopic": "coa-request",
         "responseTopic": "coa-response"

@@ -7,7 +7,7 @@
         "components": [
             {
                 "name": "ankaios-app",   
-                "type": "ankaios-workload",             
+                "type": "ankaios",             
                 "properties": {
                     "ankaios.runtime": "podman",
                     "ankaios.agent": "agent_A",
@@ -20,7 +20,7 @@
             {
                 "bindings": [
                     {
-                        "role": "ankaios-workload",
+                        "role": "ankaios",
                         "provider": "providers.target.mqtt",
                         "config": {
                             "name": "proxy",
