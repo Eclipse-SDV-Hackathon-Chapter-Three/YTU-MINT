@@ -33,5 +33,5 @@ docker compose up -d
 ## Next Steps
 
 * [Write a custom Symphony Target provider using Rust](./rust_provider.md)
-* Set up a Symphony Agent via Ankaios
+* [Set up a Symphony Agent via Ankaios](./agent_on_ankaios.md)
 * [Set up a standalone Symphony Agent](./agent_standalone.md)
