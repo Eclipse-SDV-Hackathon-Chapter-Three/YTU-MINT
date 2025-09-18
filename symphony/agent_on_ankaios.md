@@ -16,21 +16,30 @@ base64 symphony-agent-ankaios.json -w0
 Then, copy the encoded string and replace the `bin_config` field in your `state.yaml` file.
 
 ## Apply the new Ankaios state file
-Use these commands to refresh Ankaios with a new state file:
+Use the `ank apply` command to apply the updated manifest to Ankaios:
 ```bash
-sudo systemctl stop ank-agent
-sudo systemctl stop ank-server
-sudo cp <your state.yaml file> /etc/ankaios/
-# e.g. sudo cp ./samples/ankaios_provider/state.yaml /etc/ankaios/
-sudo systemctl start ank-server
-sudo systemctl start ank-agent
+ank apply ./samples/ankaios_provider/state.yaml
 ```
-Once the agent is deployed, you should see the agent container running via Podman:
+If you want to make the new Ankaios manifest persistent, then copy it to `/etc/ankaios/state.yaml`.
+
+If you start Ankaios again next time with the following commands, the new Ankaios manifest is used:
+
 ```bash
-sudo podman ps
+ank apply -d ./samples/ankaios_provider/state.yaml # delete all workloads of the current manifest
+sudo systemctl stop ank-server ank-agent
+sudo systemctl start ank-server ank-agent
 ```
-If the container fails to launch, look at `ank-agent` logs for clues:
+Once the agent is deployed, you can check the states of all workloads with:
 ```bash
+ank get workloads
+```
+If a workload fails to launch, look at its logs:
+```bash
+ank logs -f symphony
+```
+And finally, if you encounter an issue with an Ankaios component, use one of the following commands to display the logs of the Ankaios server or agent:
+```bash
+sudo journalctl -u ank-server -n 50
 sudo journalctl -u ank-agent -n 50
 ```
 

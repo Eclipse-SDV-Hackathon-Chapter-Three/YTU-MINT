@@ -1,7 +1,21 @@
 # Set Up a Standalone Symphony Agent 
 
 When deploying a Symphony agent as a container or via [Ankaios](./agent_on_ankaios.md)
-, you may encounter issues accessing certain hardware or network devices due to container sandbox constraints. In these cases, you can run the Symphony agent as a standalone process, which allows direct access to your machine’s peripherals, such as USB devices or devices connected via serial cables.
+, you may encounter issues accessing certain hardware or network devices due to container sandbox constraints. In these cases, you can modify the Ankaios `state.yaml` to make Symphony agent privileged and use host network:
+
+```yaml
+apiVersion: v0.1
+workloads:
+  symphony:
+    ...
+    runtimeConfig: |
+      image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.40
+      commandOptions: ["--privileged", "--net=host", "-e","CONFIG=/symphony-agent.json"]
+```
+
+You may also want to mount your devices (such as USB devices) to the container.
+
+On the other hand, for diagnosis purposes, you can run the Symphony agent as a standalone process, which allows direct access to your machine’s peripherals, such as USB devices or devices connected via serial cables.
 
 ## Acquire Symphony binary
 
