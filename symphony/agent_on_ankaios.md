@@ -7,13 +7,8 @@ Symphony supports an optional remote agent, which extends Symphony's state seeki
 * Eclipse Symphony has been [deployed and working](./README.md)
 
 ## Updating Ankaios state file
-Since we are going to launch Symphony agent as an Ankaios workload, we need to pass in Symphony agent configuration as a mounted file. We provide a `symphony/symphony-agent-ankaios.json` file that you can use. This file needs to be base64 encoded and added to `symphony/samples/ankaios_provider/state.yaml` as `bin_config`.
 
-To encode the file:
-```bash
-base64 symphony-agent-ankaios.json -w0
-```
-Then, copy the encoded string and replace the `bin_config` field in your `state.yaml` file.
+Since we are going to launch Symphony agent as an Ankaios workload, we need to pass in Symphony agent configuration as a mounted file. In the sample Ankaios state file under `symphony/samples/ankaios_provider/state.yaml`, there's a `symphony_config` JSON document that is mounted as `/symphony-agent.json` when the container is launched. To change Symphony agent configuration, edit the state file to change the content of `symphony_config` and follow the next step to re-apply the new state.
 
 ## Apply the new Ankaios state file
 Use the `ank apply` command to apply the updated manifest to Ankaios:
@@ -53,7 +48,7 @@ We provide a sample Target definition at `samples/ankaios_provider/target.json`.
     "properties": {
         "ankaios.runtime": "podman",
         "ankaios.agent": "agent_A",
-        "ankaios.restartPolicy": "ALWAYS",
+        "ankaios.restartPolicy": "NEVER",
         "ankaios.runtimeConfig": "image: docker.io/library/nginx\ncommandOptions: [\"-p\", \"8080:80\"]"                   
     }
 }

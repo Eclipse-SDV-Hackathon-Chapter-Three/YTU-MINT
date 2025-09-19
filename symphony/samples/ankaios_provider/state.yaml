@@ -9,17 +9,113 @@ workloads:
         operation: ReadWrite
         filterMask:
         - "*"        
-    restartPolicy: ALWAYS    
+    restartPolicy: NEVER    
     tags:
       - key: owner
         value: Symphony
     configs:
-      bin_config: bin_config
+      symphony_config: symphony_config
     files:
       - mountPoint: "/symphony-agent.json"
-        binaryData: "{{bin_config}}"
+        data: "{{symphony_config}}"
     runtimeConfig: |
       image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.40
       commandOptions: ["-e","CONFIG=/symphony-agent.json"]
-configs:
-  bin_config: ewogICJzaXRlSW5mbyI6IHsKICAgICJzaXRlSWQiOiAibXktYWdlbnQiLAogICAgImN1cnJlbnRTaXRlIjogewogICAgICAiYmFzZVVybCI6ICIiLAogICAgICAidXNlcm5hbWUiOiAiIiwKICAgICAgInBhc3N3b3JkIjogIiIKICAgIH0KICB9LAogICJhcGkiOiB7CiAgICAicHVic3ViIjogewogICAgICAic2hhcmVkIjogdHJ1ZSwKICAgICAgInByb3ZpZGVyIjogewogICAgICAgICJ0eXBlIjogInByb3ZpZGVycy5wdWJzdWIubWVtb3J5IiwKICAgICAgICAiY29uZmlnIjoge30KICAgICAgfQogICAgfSwKICAgICJrZXlsb2NrIjogewogICAgICAic2hhcmVkIjogdHJ1ZSwKICAgICAgInByb3ZpZGVyIjogeyAgICAgIAogICAgICAgICJ0eXBlIjogInByb3ZpZGVycy5rZXlsb2NrLm1lbW9yeSIsCiAgICAgICAgImNvbmZpZyI6IHsKICAgICAgICAgICJtb2RlIjogIkdsb2JhbCIsCiAgICAgICAgICAiY2xlYW5JbnRlcnZhbCIgOiAzMCwKICAgICAgICAgICJwdXJnZUR1cmF0aW9uIiA6IDQzMjAwCiAgICAgICAgfQogICAgICB9CiAgICB9LAogICAgInZlbmRvcnMiOiBbCiAgICAgIHsKICAgICAgICAidHlwZSI6ICJ2ZW5kb3JzLmVjaG8iLAogICAgICAgICJyb3V0ZSI6ICJncmVldGluZ3MiLAogICAgICAgICJtYW5hZ2VycyI6IFtdCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAidHlwZSI6ICJ2ZW5kb3JzLnNvbHV0aW9uIiwKICAgICAgICAibG9vcEludGVydmFsIjogMTUsCiAgICAgICAgInJvdXRlIjogInNvbHV0aW9uIiwKICAgICAgICAibWFuYWdlcnMiOiBbCiAgICAgICAgICB7CiAgICAgICAgICAgICJuYW1lIjogInNvbHV0aW9uLW1hbmFnZXIiLAogICAgICAgICAgICAidHlwZSI6ICJtYW5hZ2Vycy5zeW1waG9ueS5zb2x1dGlvbiIsCiAgICAgICAgICAgICJwcm9wZXJ0aWVzIjogewogICAgICAgICAgICAgICJwcm92aWRlcnMucGVyc2lzdGVudHN0YXRlIjogIm1lbS1zdGF0ZSIsICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICJwcm92aWRlcnMuY29uZmlnIjogIm1vY2stY29uZmlnIiwgIAogICAgICAgICAgICAgICJwcm92aWRlcnMuc2VjcmV0IjogIm1vY2stc2VjcmV0IiwKICAgICAgICAgICAgICAicHJvdmlkZXJzLmtleWxvY2siOiAibWVtLWtleWxvY2siLAogICAgICAgICAgICAgICJpc1RhcmdldCI6ICJ0cnVlIiwKICAgICAgICAgICAgICAidGFyZ2V0TmFtZXMiOiAiYW5rYWlvcy10YXJnZXQiLAogICAgICAgICAgICAgICJwb2xsLmVuYWJsZWQiOiAidHJ1ZSIgICAgICAgICAgICAgIAogICAgICAgICAgICB9LAogICAgICAgICAgICAicHJvdmlkZXJzIjogewogICAgICAgICAgICAgICJtZW0tc3RhdGUiOiB7CiAgICAgICAgICAgICAgICAidHlwZSI6ICJwcm92aWRlcnMuc3RhdGUubWVtb3J5IiwKICAgICAgICAgICAgICAgICJjb25maWciOiB7fQogICAgICAgICAgICAgIH0sICAgICAKICAgICAgICAgICAgICAibWVtLWtleWxvY2siOiB7CiAgICAgICAgICAgICAgICAidHlwZSI6ICJwcm92aWRlcnMua2V5bG9jay5tZW1vcnkiLAogICAgICAgICAgICAgICAgImNvbmZpZyI6IHsKICAgICAgICAgICAgICAgICAgIm1vZGUiIDogIlNoYXJlZCIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICB9LCAgICAgICAgIAogICAgICAgICAgICAgICJtb2NrLWNvbmZpZyI6IHsKICAgICAgICAgICAgICAgICJ0eXBlIjogInByb3ZpZGVycy5jb25maWcubW9jayIsCiAgICAgICAgICAgICAgICAiY29uZmlnIjoge30KICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJtb2NrLXNlY3JldCI6IHsKICAgICAgICAgICAgICAgICJ0eXBlIjogInByb3ZpZGVycy5zZWNyZXQubW9jayIsCiAgICAgICAgICAgICAgICAiY29uZmlnIjoge30KICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJhbmthaW9zIjp7CiAgICAgICAgICAgICAgICAidHlwZSI6ICJwcm92aWRlcnMudGFyZ2V0LnJ1c3QiLAogICAgICAgICAgICAgICAgImNvbmZpZyI6IHsKICAgICAgICAgICAgICAgICAgIm5hbWUiOiAiYW5rYWlvcy10eXBlIiwKICAgICAgICAgICAgICAgICAgImxpYkZpbGUiOiAiL2V4dGVuc2lvbnMvbGliYW5rYWlvcy5zbyIsCiAgICAgICAgICAgICAgICAgICJsaWJIYXNoIjogIjRhNjg4YzljODBhZGY2ZDEwZDUyZWFiMWFjYTA4Nzc4MzJmMmYwNzBhZWUyMzNjMjcxZjE2NTM2OTQxZWVjMGIiCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CiAgICAgICAgICB9CiAgICAgICAgXQogICAgICB9CiAgICBdCiAgfSwKICAiYmluZGluZ3MiOiBbCiAgICB7CiAgICAgICJ0eXBlIjogImJpbmRpbmdzLm1xdHQiLAogICAgICAiY29uZmlnIjogewogICAgICAgICJicm9rZXJBZGRyZXNzIjogInRjcDovL2hvc3QuY29udGFpbmVycy5pbnRlcm5hbDoxODgzIiwKICAgICAgICAiY2xpZW50SUQiOiAibXktYWdlbnQiLAogICAgICAgICJyZXF1ZXN0VG9waWMiOiAiY29hLXJlcXVlc3QiLAogICAgICAgICJyZXNwb25zZVRvcGljIjogImNvYS1yZXNwb25zZSIKICAgICAgfQogICAgfQogIF0KfQ==
+configs:  
+  symphony_config: |
+    {
+      "siteInfo": {
+        "siteId": "my-agent",
+        "currentSite": {
+          "baseUrl": "",
+          "username": "",
+          "password": ""
+        }
+      },
+      "api": {
+        "pubsub": {
+          "shared": true,
+          "provider": {
+            "type": "providers.pubsub.memory",
+            "config": {}
+          }
+        },
+        "keylock": {
+          "shared": true,
+          "provider": {      
+            "type": "providers.keylock.memory",
+            "config": {
+              "mode": "Global",
+              "cleanInterval" : 30,
+              "purgeDuration" : 43200
+            }
+          }
+        },
+        "vendors": [
+          {
+            "type": "vendors.echo",
+            "route": "greetings",
+            "managers": []
+          },
+          {
+            "type": "vendors.solution",
+            "loopInterval": 15,
+            "route": "solution",
+            "managers": [
+              {
+                "name": "solution-manager",
+                "type": "managers.symphony.solution",
+                "properties": {
+                  "providers.persistentstate": "mem-state",                
+                  "providers.config": "mock-config",  
+                  "providers.secret": "mock-secret",
+                  "providers.keylock": "mem-keylock",
+                  "isTarget": "true",
+                  "targetNames": "ankaios-target",
+                  "poll.enabled": "true"              
+                },
+                "providers": {
+                  "mem-state": {
+                    "type": "providers.state.memory",
+                    "config": {}
+                  },     
+                  "mem-keylock": {
+                    "type": "providers.keylock.memory",
+                    "config": {
+                      "mode" : "Shared"
+                    }
+                  },         
+                  "mock-config": {
+                    "type": "providers.config.mock",
+                    "config": {}
+                  },
+                  "mock-secret": {
+                    "type": "providers.secret.mock",
+                    "config": {}
+                  },
+                  "ankaios":{
+                    "type": "providers.target.rust",
+                    "config": {
+                      "name": "ankaios-type",
+                      "libFile": "/extensions/libankaios.so",
+                      "libHash": "4a688c9c80adf6d10d52eab1aca0877832f2f070aee233c271f16536941eec0b"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "bindings": [
+        {
+          "type": "bindings.mqtt",
+          "config": {
+            "brokerAddress": "tcp://host.containers.internal:1883",
+            "clientID": "my-agent",
+            "requestTopic": "coa-request",
+            "responseTopic": "coa-response"
+          }
+        }
+      ]
+    }
