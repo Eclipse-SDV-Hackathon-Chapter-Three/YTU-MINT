@@ -33,9 +33,7 @@ This challenge tasks participants with building a secure, scalable Over-the-Air 
 
 This HPC variant focuses on updating ECUs in a simulated vehicle environment, leveraging the strengths of Symphony, uProtocol, and Ankaios to create a robust and open OTA update system.
 
-### OTA with Eclipse Ankaios
-
-To run the OTA variant with the Eclipse Ankaios embedded software orchestrator, please follow the instructions of the [README.md](./ankaios/README.md) inside the `ankaios` folder.
+To start with this challenge go to [hpc_variant/README.md](./hpc_variant/README.md).
 
 ## OTA Updates for Robots
 
@@ -93,4 +91,4 @@ This ROS variant highlights the flexibility and power of Symphony, uProtocol, an
 
 ### Getting Started
 
-Follow intructions [here](./symphony/README.md) to set up Eclipse Symphony using Docker Compose with a single command line.
+Follow intructions [here](./hpc_variant/README.md) to set up Eclipse Symphony using Docker Compose with a single command line.

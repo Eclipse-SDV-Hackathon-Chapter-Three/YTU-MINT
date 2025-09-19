@@ -6,15 +6,6 @@ Symphony supports an optional remote agent, which extends Symphony's state seeki
 * Eclipse Ankaios has been [configured and working](../ankaios/README.md)
 * Eclipse Symphony has been [deployed and working](./README.md)
 
-## Updating Ankaios state file
-Since we are going to launch Symphony agent as an Ankaios workload, we need to pass in Symphony agent configuration as a mounted file. We provide a `symphony/symphony-agent-ankaios.json` file that you can use. This file needs to be base64 encoded and added to `symphony/samples/ankaios_provider/state.yaml` as `bin_config`.
-
-To encode the file:
-```bash
-base64 symphony-agent-ankaios.json -w0
-```
-Then, copy the encoded string and replace the `bin_config` field in your `state.yaml` file.
-
 ## Apply the new Ankaios state file
 Use the `ank apply` command to apply the updated manifest to Ankaios:
 ```bash
