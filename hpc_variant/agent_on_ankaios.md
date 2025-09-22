@@ -44,7 +44,7 @@ We provide a sample Target definition at `samples/ankaios_provider/target.json`.
     "properties": {
         "ankaios.runtime": "podman",
         "ankaios.agent": "agent_A",
-        "ankaios.restartPolicy": "ALWAYS",
+        "ankaios.restartPolicy": "NEVER",
         "ankaios.runtimeConfig": "image: docker.io/library/nginx\ncommandOptions: [\"-p\", \"8080:80\"]"                   
     }
 }
