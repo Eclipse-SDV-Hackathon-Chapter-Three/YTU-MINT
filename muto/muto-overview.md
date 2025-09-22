@@ -14,7 +14,7 @@ Muto transforms the traditional imperative ROS launch system into a declarative,
 
 **Architecture Philosophy:**
 
-<img src="./docs/images/muto-modules.png" alt="alt" title="TEclipse Muto Modules" width="50%"  style="border: 1px solid gray;'">
+<img src="https://github.com/eclipse-muto/muto/raw/main/docs/images/muto-modules.png" alt="alt" title="TEclipse Muto Modules" width="50%"  style="border: 1px solid gray;'">
 
 - **Agent**: Secure gateway, protocol-agnostic, delivers the model
 - **Composer**: Enforces the model, manages pipelines, builds, and launches
