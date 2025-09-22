@@ -95,4 +95,4 @@ This ROS variant highlights the flexibility and power of Symphony, uProtocol, an
 
 - Follow intructions [here](./symphony/README.md) to set up Eclipse Symphony using Docker Compose with a single command line.
 
-- Use the instructions [ROS2 Provider](./muto/README.md) to set up and of Eclipse Muto with Eclipse Symphony ROS 2 Provider
+- Use the instructions [ROS2 Provider](./muto/muto.md) to set up and of Eclipse Muto with Eclipse Symphony ROS 2 Provider
