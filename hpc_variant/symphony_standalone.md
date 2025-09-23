@@ -1,7 +1,7 @@
 # Set Up a Standalone Symphony Agent 
 
-When deploying a Symphony agent as a container or via [Ankaios](./agent_on_ankaios.md)
-, you may encounter issues accessing certain hardware or network devices due to container sandbox constraints. In these cases, you can modify the Ankaios `state.yaml` to make Symphony agent privileged and use host network:
+When deploying a Symphony agent as a container or via [Ankaios](./README.md)
+, you may encounter issues accessing certain hardware or network devices due to container sandbox constraints. In these cases, you can modify the Ankaios manifest [state.yaml](./ankaios/state.yaml) to make Symphony agent privileged and use host network:
 
 ```yaml
 apiVersion: v0.1
@@ -26,15 +26,15 @@ wget -q https://raw.githubusercontent.com/eclipse-symphony/symphony/proxy-proces
 ```
 Once `maestro` is installed, you can find the Symphony binary, `symphony-api`, under your `~/.symphony` folder.
 
-Copy `symphony-api` to the `symphony` folder of this repo:
+Copy `symphony-api` to the `hpc_variant` folder of this repo:
 
 ```bash
-cp ~/.symphony/symphony-api <path/to/challenge-repo-clone>/symphony
+cp ~/.hpc_variant/symphony-api <path/to/challenge-repo-clone>/symphony
 ```
 
 ## Update `symphony-agent-standalone.json` file as needed
 
-When the agent is launched, it reads a provided configuration file, which is under `symphony/symphony-agent.json` in this repo. The configuration file should work out-of-the-box. However, there are several things you might want to change in case your environment is different:
+When the agent is launched, it reads a provided configuration file, which is under `hpc_variant/symphony-agent.json` in this repo. The configuration file should work out-of-the-box. However, there are several things you might want to change in case your environment is different:
 1. In the `bindings` section, you'll need to update the MQTT broker address to match with your settings if you were not using the MQTT broker deployed by the challenge Docker Compose file:
     ```json
     "brokerAddress": "tcp://localhost:1883",

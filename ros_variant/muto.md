@@ -1,4 +1,4 @@
-# Eclipse Muto
+# ECU Updates for Robotics (ROS Variant)
 
 ## Documentation Structure
 

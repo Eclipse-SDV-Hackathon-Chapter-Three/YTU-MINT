@@ -45,12 +45,12 @@ As shown in the `samples/mock_provider/target.json` sample, a Rust provider is c
 This section walks you through the steps of creating a new Rust Symphony Target provider named `my_provider`. If needed, you can view the code under `samples/my_provider_0` as a reference, as it was created following the exact steps.
 
 ### 1. Set up the Rust crate
-1. Under `symphony/samples` folder, create a new Rust project using `cargo`:
+1. Under `hpc_variant/samples` folder, create a new Rust project using `cargo`:
 
     ```bash
     cargo new my_provider --lib
     ```
-2. Edit the `Cargo.toml` file under the newly created `symphony/samples/my_provider` folder and add a reference to the [Symphony Rust crate](https://crates.io/crates/symphony). Also change the crate type to C dynamic library:
+2. Edit the `Cargo.toml` file under the newly created `hpc_variant/samples/my_provider` folder and add a reference to the [Symphony Rust crate](https://crates.io/crates/symphony). Also change the crate type to C dynamic library:
 
     ```toml
     [dependencies]
@@ -192,7 +192,7 @@ let component_result = ComponentResultSpec {
 };
 ```
 ## Deploy your provider to Symphony
-To deploy your provider, copy the compiled `.so` file into Symphony’s `extensions` folder. If you are using the Docker Compose file provided in this repository, the `symphony/providers` folder is automatically mounted as Symphony’s `extensions` folder. Simply place the .so file there. Note that you may need to restart your Docker Compose deployment for the new file to be recognized inside the container.
+To deploy your provider, copy the compiled `.so` file into Symphony’s `extensions` folder. If you are using the Docker Compose file provided in this repository, the `hpc_variant/providers` folder is automatically mounted as Symphony’s `extensions` folder. Simply place the .so file there. Note that you may need to restart your Docker Compose deployment for the new file to be recognized inside the container.
 
 To use your provider in a Target definition, you'll need the hash code:
 ```bash
