@@ -11,21 +11,22 @@ workloads:
             - "*"
     runtimeConfig: |
       image: localhost/update_trigger_workload:0.1
+      commandOptions: ["-p","5500:5500"]
   symphony:
     runtime: podman
-    agent: ""
-    controlInterfaceAccess:
-      allowRules:
-      - type: StateRule
-        operation: ReadWrite
-        filterMask:
-        - "*"        
+    agent: "" 
     restartPolicy: NEVER    
     tags:
       - key: owner
         value: Symphony
     configs:
       symphony_config: symphony_config
+    controlInterfaceAccess:
+      allowRules:
+        - type: StateRule
+          operation: ReadWrite
+          filterMask:
+            - "*"
     files:
       - mountPoint: "/symphony-agent.json"
         data: "{{symphony_config}}"
@@ -40,6 +41,19 @@ workloads:
     runtimeConfig: |
       image: ghcr.io/eclipse-ankaios/tests/alpine:latest
       commandArgs: [ "sh", "-c", "trap 'echo; exit' SIGINT SIGTERM; while true; do echo 'Hello from ECU 1'; sleep 1; done" ]
+  Ankaios_Dashboard:
+    runtime: podman
+    agent: agent_A
+    restartPolicy: NEVER 
+    runtimeConfig: |
+       image: ghcr.io/eclipse-ankaios-dashboard/ankaios-dashboard:v0.6.0
+       commandOptions: ["-p", "5001:5001"]
+    controlInterfaceAccess:
+        allowRules:
+          - type: StateRule
+            operation: ReadWrite
+            filterMask:
+              - "*"
 configs:
   symphony_config: |
     {

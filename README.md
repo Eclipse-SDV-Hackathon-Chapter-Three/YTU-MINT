@@ -91,4 +91,4 @@ This ROS variant highlights the flexibility and power of Symphony, uProtocol, an
 
 ### Getting Started
 
-Follow intructions [here](./hpc_variant/README.md) to set up Eclipse Symphony using Docker Compose with a single command line.
+Follow intructions [here](./hpc_variant/README.md) for the OTA Updates for ECUs challenge.

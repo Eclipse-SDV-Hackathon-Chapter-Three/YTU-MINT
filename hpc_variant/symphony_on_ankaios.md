@@ -1,10 +1,9 @@
 # Set Up a Symphony Agent via Ankaios
 
-Symphony supports an optional remote agent, which extends Symphony's state seeking to a separate process or network from the Symphony management plane. For example, you can have Symphony management plane running in a headquarter office, and remote agents installed on trucks on the road. The agents communicate with the management plane over a MQTT broker. In this challenge, you have the option of using Eclipse Ankaios to deploy your Symphony agent, as explained in the following steps.
+You will deploy your Symphony Agent Rust Provider using Eclipse Ankaios. The Symphony Agent connects to the Symphony management plane in the cloud over MQTT.
 
 ## Prerequisites
-* Eclipse Ankaios has been [configured and working](../ankaios/README.md)
-* Eclipse Symphony has been [deployed and working](./README.md)
+* Eclipse Symphony and Eclipse Ankaios has been [configured and working](./README.md)
 
 ## Apply the new Ankaios state file
 Use the `ank apply` command to apply the updated manifest to Ankaios:
@@ -49,8 +48,18 @@ We provide a sample Target definition at `samples/ankaios_provider/target.json`.
     }
 }
 ```
-You can use the `samples/ankaios_provider/test_ankaios_provider.sh` script to create and then destroy a Target (named `ankaios-target`). After the Target is created, you should be able to observe the Ankaios payload getting launched in Podman:
+You can use the `samples/ankaios_provider/test_ankaios_provider.sh` script to create and then destroy a Target (named `ankaios-target`). After the Target is created, you should be able to observe new workload:
 ```bash
-sudo podman ps
+ank get workloads
 ```
 And once you press `[Enter]` in the script, the Target is removed and the Nginx workload should be removed from Ankaios after a while.
+
+# Additional Ankaios commands
+
+```
+ank get state // Retrieve information about the current Ankaios system
+ank get workload // Information about the worloads running in the Ankaios system
+ank get agent // Information about the Ankaios agents connected to the Ankaios server
+ank logs <workload_name> // Retrieve the logs from a workload
+ank help // Get the help
+```
