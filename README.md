@@ -91,4 +91,5 @@ This ROS variant highlights the flexibility and power of Symphony, uProtocol, an
 
 ### Getting Started
 
-Follow intructions [here](./hpc_variant/README.md) for the OTA Updates for ECUs challenge.
+- Follow intructions [here](./hpc_variant/README.md) for the OTA Updates for ECUs challenge.
+- Use the instructions [ROS2 Provider](./muto/muto.md) to set up and of Eclipse Muto with Eclipse Symphony ROS 2 Provider
