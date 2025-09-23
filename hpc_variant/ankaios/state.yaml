@@ -1,6 +1,6 @@
 apiVersion: v0.1
 workloads:
-  update_trigger: # please build this workload first with "sudo podman build -t localhost/update_trigger_workload:0.1 ."
+  update_trigger: # please build this workload first like described in custom_workloads/update_trigger with "sudo podman build -t localhost/update_trigger_workload:0.1 ."
     runtime: podman
     agent: agent_A
     controlInterfaceAccess:

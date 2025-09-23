@@ -2,7 +2,7 @@
 
 ## The Challenge
 Modern vehicles aren’t just engines and wheels anymore — they’re powerful, software-driven platforms with dozens of interconnected ECUs, sensors, and services. But delivering secure, reliable Over-the-Air (OTA) updates at scale? That’s still a big challenge. Update Possible invites you to take on one of the hottest technical problems in the software-defined vehicle world: designing an open, end-to-end OTA update system using cutting-edge tools like [Eclipse Symphony](https://github.com/eclipse-symphony/symphony)
-, [Eclipse uProtocol](https://uprotocol.org/), and in-vehicle orchestrators such as [Eclipse Ankaios](https://eclipse-ankaios.github.io/ankaios/) and [Eclipse Muto](https://github.com/eclipse-muto).
+, [Eclipse uProtocol](https://uprotocol.org/), and in-vehicle orchestrators such as [Eclipse Ankaios](https://eclipse-ankaios.github.io/ankaios/0.6/) and [Eclipse Muto](https://github.com/eclipse-muto).
 
 ## Your mission:
 * Build a working prototype that pushes updates from a cloud orchestrator to simulated vehicles.
@@ -91,5 +91,5 @@ This ROS variant highlights the flexibility and power of Symphony, uProtocol, an
 
 ### Getting Started
 
-- Follow intructions [here](./hpc_variant/README.md) for the OTA Updates for ECUs challenge.
-- Use the instructions [ROS2 Provider](./muto/muto.md) to set up and of Eclipse Muto with Eclipse Symphony ROS 2 Provider
+- Follow intructions [here](./hpc_variant/README.md) for the OTA Updates for ECUs challenge variant.
+- Follow instructions [here](./ros_variant/muto.md) for the OTA Updates for robotics challenge variant.

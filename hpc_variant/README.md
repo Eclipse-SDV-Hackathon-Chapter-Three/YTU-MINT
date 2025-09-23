@@ -17,6 +17,19 @@ The in-vehicle component is managed via Eclipse Ankaios and comes with a predefi
 
 The `update_trigger` workload uses the Ankaios SDK [ank-sdk-python](https://github.com/eclipse-ankaios/ank-sdk-python/tree/v0.6.0) to dynamically start the `symphony` in-vehicle workload. In real-world scenarios, ECU updates are typically triggered only under certain conditions (e.g., when the vehicle is parked at home). You can use Eclipse Ankaios’ dynamic features to start workloads programmatically. The workload runs a FastAPI backend that provides a simple `Update` button to trigger the update. Normally, a user must confirm an update, which serves as a foundation for an enhanced workflow. Once triggered, the Ankaios SDK instructs Ankaios to start the `symphony` provider workload, which fetches updates from the Symphony cloud control plane over MQTT. The demo does not update the `virtual_ecu`; implementing the update logic is your task by creating a `Symphony Target Rust Provider`. Feel free to enhance this basic scenario.
 
+## Architectural Overview
+
+```
+Eclipse Symphony (Cloud Meta Orchestrator)
+        ↓ MQTT/API
+Eclipse Symphony Provider Agent managed by Eclipse Ankaios (in-vehicle orchestrator)
+        ↓ Ankaios Control Interface
+Eclipse Ankaios
+        ↓ Starts/Updates
+In-vehicle Workloads/ECUs
+```
+- [Ankaios Control Interface](https://eclipse-ankaios.github.io/ankaios/0.6/reference/control-interface/)
+
 ## Prerequisites
 
 - Any Linux or WSL2 on Windows
@@ -62,24 +75,7 @@ No installation is required; the cloud component is launched via Docker Compose.
 
 ### Start the cloud part
 
-Launch Symphony, an MQTT broker, and a read-only Symphony portal using the provided Docker Compose file:
-
-```bash
-# From the current folder
-# If your docker-compose.yaml file is under a different folder, use:
-# docker compose -f /path/to/your/docker-compose.yml up -d
-docker compose up -d
-```
-
-#### Verify Access to Services
-
-* To check access to Symphony REST API, you can send a test request to a `/greetings` route using tools like `curl`:
-    ```bash
-    curl http://localhost:8082/v1alpha2/greetings
-    ```
-    You should see a string `Hello from Symphony K8s control plane (S8C)` in response.
-
-* (optional) To check access to the read-only Symphony portal, open a browser and navigate to `http://localhost:3000`. Login with user `admin` without a password. You should see the Symphony portal page. During your experiments, you can browse the Targets by clicking on the `Targets` link in the left panel.
+Launch Symphony, an MQTT broker, and a read-only Symphony portal using the provided Docker Compose file like described in [../symphony/README.md](../symphony/README.md).
 
 ### Start the in-vehicle part
 
@@ -104,8 +100,7 @@ For applying incremental changes during the development you might update the [st
 3. The `update_trigger` workload sets the empty agent name of the `symphony` workload (Symphony Target Provider) to the running Ankaios Agent named `agent_A` via the Ankaios Python SDK. This instructs Ankaios to schedule and start the `symphony` workload.
 4. The `symphony` workload connects to the Symphony cloud management plane via MQTT and is ready to receive updates.
 5. You can see in the Ankaios Dashboard, that the `symphony` workload is running.
-
-With executing `ank get workloads` in the terminal, you should see now all workloads running:
+6. With executing `ank get workloads` in the terminal, you should see now all workloads running:
 
 ```text
 WORKLOAD NAME       AGENT     RUNTIME   EXECUTION STATE   ADDITIONAL INFO
@@ -114,6 +109,24 @@ symphony            agent_A   podman    Running(Ok)
 update_trigger      agent_A   podman    Running(Ok)
 virtual_ecu         agent_A   podman    Running(Ok)
 ```
+7. Open a terminal window and navigate to `samples/ankaios_provider` and execute the script `test_ankaios_provider.sh`. You can use the script to create and then destroy a Target (named `ankaios-target`). It sends the provided sample target definition `target.json` containing a new workload `ankaios-app` with a Nginx container to the Symphony management plane and the Symphony Agent Provider workload receives this payload and instructs Ankaios to create this new workload. Target definition snippet:
+```json
+{
+    "name": "ankaios-app",   
+    "type": "ankaios-workload",             
+    "properties": {
+        "ankaios.runtime": "podman",
+        "ankaios.agent": "agent_A",
+        "ankaios.restartPolicy": "NEVER",
+        "ankaios.runtimeConfig": "image: docker.io/library/nginx\ncommandOptions: [\"-p\", \"8080:80\"]"                   
+    }
+}
+```
+
+8. Execute `ank get workloads` again and now you should see an additional workload `ankaios-app` in the state `Running(Ok)`. You can also access the nginx start page with `curl http://localhost:8080`.
+9. Go back to `test_ankaios_provider.sh` terminal window and press enter. The `ankaios-app` workload is removed again.
+
+Using Symphony and Ankaios, you can deploy new workloads (add workloads to `target.json`) to the vehicle or update existing workloads (set a newer container image in `target.json`).
 
 For debugging, view logs of any workload:
 
@@ -125,9 +138,18 @@ Replace `<workload_name>` with the workload name for which you want to see the l
 
 Proceed to the next steps to enhance this basic scenario with your custom update workflow.
 
+## Additional Ankaios commands
+
+```
+ank get state // Retrieve information about the current Ankaios system
+ank get workload // Information about the worloads running in the Ankaios system
+ank get agent // Information about the Ankaios agents connected to the Ankaios server
+ank logs <workload_name> // Retrieve the logs from a workload
+ank help // Get the help
+```
+
 ## Next Steps
 
 * [Write a custom Symphony Target provider using Rust](./rust_provider.md)
-* [Set up a Symphony Agent via Ankaios](./symphony_on_ankaios.md)
 * [Set up a standalone Symphony Agent](./symphony_standalone.md)
-* Write more custom workloads like [custom_workloads/update_trigger](./custom_workloads/update_trigger/) to enhance the update challenge
+* Write more custom workloads like [custom_workloads/update_trigger](./ankaios/custom_workloads/update_trigger/) to enhance the update challenge
