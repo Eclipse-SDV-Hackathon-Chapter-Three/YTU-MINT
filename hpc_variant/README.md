@@ -8,7 +8,7 @@ For quick onboarding, both the cloud (simulated locally on your machine) and the
 
 The cloud component is launched through a Docker Compose file that includes the Eclipse Symphony management plane, an MQTT broker (based on [Eclipse Mosquitto](https://mosquitto.org/)) for delivering updates to the vehicle, and a read-only Symphony portal.  
 
-The in-vehicle component is managed via Eclipse Ankaios and comes with a predefined [Ankaios manifest](https://eclipse-ankaios.github.io/ankaios/0.6/reference/startup-configuration/) called [state.yaml](./samples/ankaios_provider/state.yaml), which launches the following workloads:
+The in-vehicle component is managed via Eclipse Ankaios and comes with a predefined [Ankaios manifest](https://eclipse-ankaios.github.io/ankaios/0.6/reference/startup-configuration/) called [state.yaml](./ankaios/state.yaml), which launches the following workloads:
 
 - `virtual_ecu`: a demo virtual ECU logging output to the console, representing a target that can be updated.
 - `update_trigger`: a web-based workload accessible at `http://localhost:5500` with a button to instruct Eclipse Ankaios to start the `symphony` in-vehicle workload.
@@ -85,13 +85,13 @@ Start the Ankaios server and Ankaios agent with systemd:
 sudo systemctl start ank-server ank-agent
 ```
 
-To run the over-the-air (OTA) scenario, just apply the [state.yaml](./samples/ankaios_provider/state.yaml) containing the workloads of the demo screnario:
+To run the over-the-air (OTA) scenario, just apply the [state.yaml](./ankaios/state.yaml) containing the workloads of the demo screnario:
 
 ```shell
-ank apply samples/ankaios_provider/state.yaml
+ank apply ankaios/state.yaml
 ```
 
-For applying incremental changes during the development you might update the [state.yaml](./samples/ankaios_provider/state.yaml) multiple times. The `ank apply` command figures out changes to the manifest by itself and applies only the changes, which means you can apply the new manifest and the workloads will get updated. You can also remove all the applied workloads by simply running `ank apply -d samples/ankaios_provider/state.yaml`. Just stopping the Ankaios cluster using systemd keeps the workloads and containers on `Podman`.
+For applying incremental changes during the development you might update the [state.yaml](./ankaios/state.yaml) multiple times. The `ank apply` command figures out changes to the manifest by itself and applies only the changes, which means you can apply the new manifest and the workloads will get updated. You can also remove all the applied workloads by simply running `ank apply -d ankaios/state.yaml`. Just stopping the Ankaios cluster using systemd keeps the workloads and containers on `Podman`.
 
 ### Do the demo
 

@@ -1,7 +1,7 @@
 # Set Up a Standalone Symphony Agent 
 
 When deploying a Symphony agent as a container or via [Ankaios](./README.md)
-, you may encounter issues accessing certain hardware or network devices due to container sandbox constraints. In these cases, you can modify the Ankaios `state.yaml` to make Symphony agent privileged and use host network:
+, you may encounter issues accessing certain hardware or network devices due to container sandbox constraints. In these cases, you can modify the Ankaios manifest [state.yaml](./ankaios/state.yaml) to make Symphony agent privileged and use host network:
 
 ```yaml
 apiVersion: v0.1
