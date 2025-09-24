@@ -1,6 +1,6 @@
 # ROS Apriltag Detector
 
-<img src="https://github.com/ros-misc-utilities/apriltag_detector/raw/master/images/apriltags.png width="40%">
+<img src="https://github.com/ros-misc-utilities/apriltag_detector/raw/master/images/apriltags.png" width="40%" alt="AprilTags example" />
 
 This example uses  holds the following [AprilTag ROS2 Packages](https://github.com/ros-misc-utilities/apriltag_detector): packages for detecting and displaying [Apriltags](https://april.eecs.umich.edu/software/apriltag). Please read the [documentation](https://github.com/ros-misc-utilities/apriltag_detector/blob/master/README.md) there for further details.
 
