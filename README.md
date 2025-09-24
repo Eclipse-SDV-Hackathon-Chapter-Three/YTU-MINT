@@ -60,6 +60,7 @@ This robotics (ROS) variant of the challenge focuses on orchestrating secure, sc
 This ROS variant highlights the flexibility and power of Symphony, uProtocol, and Muto in managing complex update scenarios for robotics platforms, enabling safe, reliable, and auditable software delivery.
 
 
+To start with this challenge go to [ros_variant/README.md](./ros_variant/README.md).
 
 
 ---
@@ -95,4 +96,4 @@ This ROS variant highlights the flexibility and power of Symphony, uProtocol, an
 ### Getting Started
 
 - Follow intructions [here](./hpc_variant/README.md) for the OTA Updates for ECUs challenge variant.
-- Follow instructions [here](./ros_variant/muto.md) for the OTA Updates for robotics challenge variant.
+- Follow instructions [here](./ros_variant/README.md) for the OTA Updates for robotics challenge variant.

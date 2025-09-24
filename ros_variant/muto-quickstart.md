@@ -114,7 +114,7 @@ The launch file orchestrates the startup of all Muto components and defines thei
 
 ```bash
 # Navigate to challenge repository root (where config/ and launch/ directories exist)
-```bash
+
 # Navigate to the ros directory
 cd challenge-mission-update-possible/ros_variant
 
@@ -122,6 +122,7 @@ cd challenge-mission-update-possible/ros_variant
 
 
 # Launch Muto container with Symphony integration
+```bash
 podman run --rm -it \
   -e MUTO_LAUNCH=/work/launch/muto.launch.py \
   -e MUTO_LAUNCH_ARGS="vehicle_namespace:=org.eclipse.muto.test vehicle_name:=test-robot-debug enable_symphony:=true" \
