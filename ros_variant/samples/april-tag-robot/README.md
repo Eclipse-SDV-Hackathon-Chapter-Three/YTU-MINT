@@ -1,204 +1,146 @@
-# ROS Apriltag Detector
+# AprilTag Detection Sample (ROS 2 + Muto + Symphony)
 
 <img src="https://github.com/ros-misc-utilities/apriltag_detector/raw/master/images/apriltags.png" width="40%" alt="AprilTags example" />
 
-This example uses  holds the following [AprilTag ROS2 Packages](https://github.com/ros-misc-utilities/apriltag_detector): packages for detecting and displaying [Apriltags](https://april.eecs.umich.edu/software/apriltag). Please read the [documentation](https://github.com/ros-misc-utilities/apriltag_detector/blob/master/README.md) there for further details.
+Lightweight AprilTag detection and (optional) drawing pipeline deployed remotely via **Eclipse Muto** (stack orchestration) and **Eclipse Symphony** (fleet update orchestration).
 
+This sample uses the upstream [apriltag_detector packages](https://github.com/ros-misc-utilities/apriltag_detector) to detect / visualize fiducials. For combined detection + camera pose estimation use the alternative project: [apriltag_ros](https://github.com/christianrauch/apriltag_ros).
 
-The software in this repository does strictly perception, *no camera pose estimation*!
-It is typically used when no camera calibration is available, or is not needed.
-If you want perception and camera pose together, use [this package](https://github.com/christianrauch/apriltag_ros),
-which uses the same tag message format.
+Focus: perception only (no camera calibration or full 6‑DoF pose fusion). Useful when approximate detection + ID stream is sufficient or camera calibration is unknown.
 
-## Installation
+## Artifact Map
 
-### From packages
+Directory: [`samples/april-tag-robot/`](./)
 
+| File | Purpose |
+|------|---------|
+| `apriltag-detector-muto-stack.json` | Declarative Muto stack (JSON) for detector + draw nodes (composable container) |
+| `apriltag-tracking-solution.json` | Symphony Solution (wraps stack as base64 payload) |
+| `apriltag-tracking-instance.json` | Symphony Instance binding Solution → Target |
+| `apriltag_workspace/stack.json` | Alternative workspace/stack form (if using archive packaging) |
+| `apriltag_workspace/launch/apriltag.launch.yaml` | Upstream style launch YAML (reference only) |
+| `apriltag_workspace/config/tags_36h11.yaml` | Tag family parameter file |
+
+Target definition is auto‑registered by the running Muto Agent (see talker–listener sample). For a static reference, review [`../talker-listener/test-robot-debug-target.json`](../talker-listener/test-robot-debug-target.json).
+
+## Scenario Overview
+
+You operate a fleet of robots each with a monocular camera. You need to:
+1. Deploy an initial AprilTag detection capability (v1).
+2. Safely roll out an improved pipeline (v2) that supports additional tag families and optional tracking/visualization.
+3. Use canary rollout + rollback policies to limit risk.
+
+The complete deep‑dive OTA narrative (architecture + sequence diagrams) lives in `ros_variant/muto.md` (search for "AprilTag" section). This README keeps a concise, actionable version focused on running the sample.
+
+### Version Delta (Conceptual)
+| Aspect | v1 (baseline) | v2 (enhanced) |
+|--------|---------------|---------------|
+| Families | `tag36h11` | `tag36h11`, `tagStandard41h12` |
+| Nodes | detector, draw | detector, draw, (optional future tracker) |
+| Telemetry | raw detections | detections + extended metrics |
+| Policy | none | optional: only when docked |
+
+Refer to the architecture + sequence diagrams in `muto.md` for full context. Keeping this README lean.
+
+## Deploy the Sample
+
+### 1. Start Symphony + Muto (Target auto‑registers)
+Follow the talker–listener quick start: [`../../muto-quickstart.md`](../../muto-quickstart.md). Ensure a target like `test-robot-debug` appears in Symphony (`/v1alpha2/targets`).
+
+### 2. Inspect / Adjust Stack
+Open [`apriltag-detector-muto-stack.json`](./apriltag-detector-muto-stack.json). Key areas:
+- `composable[0].node[]` list (detector + draw components)
+- Detector parameters (family, image topic remaps)
+
+Edit as desired (e.g., add a second detector node for another family) then base64 encode if embedding directly into a Solution.
+
+### 3. Create Solution
+Use the provided Solution definition: [`apriltag-tracking-solution.json`](./apriltag-tracking-solution.json).
+
+If you modify the stack JSON, regenerate the `data` field:
+```bash
+cd ros_variant/samples/april-tag-robot
+STACK=apriltag-detector-muto-stack.json
+BASE64=$(cat "$STACK" | base64 -w0)
+jq --arg d "$BASE64" '.spec.components[0].properties.data=$d' apriltag-tracking-solution.json > /tmp/new-solution.json
+mv /tmp/new-solution.json apriltag-tracking-solution.json
 ```
-apt install ros-${ROS_DISTRO}-apriltag-detector ros-${ROS_DISTRO}-apriltag-draw \
-            ros-${ROS_DISTRO}-apriltag-detector-umich ros-${ROS_DISTRO}-apriltag-detector-mit
-```
-
-## Robotics OTA Use Case: AprilTag Detection & Tracking
-
-This section turns the general "OTA Updates for Robots" challenge into a concrete, end‑to‑end example you can implement, extend, and use to demonstrate update orchestration with Symphony + Muto.
-
-### 🎯 Scenario Summary
-You operate a fleet of mobile robots equipped with a monocular camera. Each robot runs an AprilTag detection pipeline (based on the open source `apriltag_ros` package) to identify fiducial markers in the environment. A central tracking uService aggregates detections from many robots to build a shared situational model (e.g., tagged pallets, tools, shelves, or docking stations).
-
-Version 1 (Baseline):
-- Detects a single AprilTag family (e.g., `tag36h11`).
-- Publishes raw tag detections (pose + ID) to a ROS topic.
-- Sends periodic heartbeat + basic telemetry (CPU, image FPS).
-
-Version 2 (Update):
-- Enables multi‑family detection (`tag36h11` + `tagStandard41h12`).
-- Adds per‑tag confidence scoring & smoothing.
-- Introduces an Object Tracker node that maintains temporal state (disappeared / newly appeared / stable objects) and publishes events.
-- Adjusts detection parameters (quad decimation, blur) for performance.
-- Ships new policy: only update while robot is docked (battery policy enforcement via Symphony attributes & Muto labels).
-
-The OTA Update Flow:
-1. Fleet is on v1 (single family) running stably.
-2. New v2 stack (multi‑family + tracker) is published as a new Symphony Solution version + Muto stack revision.
-3. Operator (or automated policy) requests OTA update on a subset (canary) of robots.
-4. Symphony coordinates delivery → Muto Agent reconciles model → Composer rolls out new nodes with minimal downtime.
-5. Telemetry + status events confirm success; system promotes rollout to the rest of the fleet or rolls back on failure.
-
-### 🧩 High-Level Architecture
-
-```mermaid
-flowchart LR
-   subgraph Cloud_Control_Plane[Cloud / Control Plane]
-      A[Symphony Orchestrator]
-      C[Event Bus MQTT / uProtocol]
-      D[Tracking Aggregator]
-   end
-
-   subgraph Edge_Robot[Edge Robot]
-      M[Muto Agent]
-      K[Composer]
-      subgraph ROS_Workspace[ROS Workspace]
-         Cam[Camera Driver]
-         Det[apriltag_ros Detector]
-         Trk[Object Tracker]
-         Tel[Telemetry Bridge]
-      end
-   end
-
-   A --> M
-   M --> K
-   K --> Cam
-   Cam --> Det
-   Det --> Trk
-   Trk --> Tel
-   Tel --> C
-   C --> D
-   D --> A
+Then submit:
+```bash
+cd ../  # ensure you are in samples/ for the script
+./define-solution.sh april-tag-robot/apriltag-tracking-solution.json
 ```
 
-<details>
-<summary>Plaintext architecture (fallback if Mermaid not rendered)</summary>
-
-Cloud / Control Plane:
-   - Symphony Orchestrator
-   - Update Registry (Target/Solution/Instance)
-   - MQTT / uProtocol (Events & Commands)
-   - Tracking Aggregator (Fleet Tag Map)
-
-Edge Robot:
-   - Muto Agent (receives model)
-   - Composer (enforces stack)
-   - ROS Workspace:
-         * Camera Driver Node -> apriltag_ros Detector -> Object Tracker -> Telemetry Bridge
-
-Flows:
-   Symphony -> Muto Agent -> Composer -> Camera -> Detector -> Tracker -> Telemetry -> Cloud events
-   Update Registry -> Composer
-   Tracking Aggregator feedback -> Symphony
-
-</details>
-
-### 🔄 OTA Sequence (Baseline → Updated Stack)
-
-```mermaid
-sequenceDiagram
-      participant Op as Operator
-      participant Sym as Symphony
-      participant Agent as Muto Agent
-      participant Comp as Composer
-      participant ROS as ROS Nodes
-      Op->>Sym: Publish Solution v2 (multi-family + tracker)
-      Op->>Sym: Trigger Update (target group=canary)
-      Sym->>Agent: Push desired model (Solution v2)
-      Agent->>Comp: Reconcile stack change
-      Comp->>ROS: Launch new Detector (multi-family)
-      Comp->>ROS: Launch Object Tracker
-      Comp-->>ROS: Stop old detector (after readiness OK)
-      ROS->>Agent: Status (Running, Healthy)
-      Agent->>Sym: Update success event
-      Sym-->>Op: Rollout report (canary OK) -> proceed fleet
+### 4. Deploy Instance
+Submit the instance spec: [`apriltag-tracking-instance.json`](./apriltag-tracking-instance.json)
+```bash
+./define-instance.sh april-tag-robot/apriltag-tracking-instance.json
 ```
 
-### 🗂️ Symphony Artifact Examples
+### 5. Verify
+ROS side (in container / host with ROS env):
+```bash
+ros2 topic list | grep apriltag
+ros2 topic echo /apriltag/detections  # Ctrl+C after a few messages
+```
+Symphony side:
+```bash
+curl -s http://localhost:8082/v1alpha2/instances | jq '.items[] | select(.metadata.name|test("apriltag")) | {name: .metadata.name, phase: .status.phase}'
+```
 
-Below are illustrative (minimal) JSON/YAML fragments. Adapt field names to match the current Symphony API version.
-
-#### 1. Target Definition (`target.json`)
-
-
-#### 2. Solution (v1) – Single Family (`solution-v1.json`)
-
-
-#### 3. Solution (v2) – Multi Family + Tracker (`solution-v2.json`)
-
-
-#### 4. Update Request (Canary)
-```jsonc
+### 6. (Optional) Canary Update Flow
+Create an UpdateRequest (adjust labels to match your fleet):
+```json
 {
-   "apiVersion": "symphony/v1",
+   "apiVersion": "symphony/v1alpha2",
    "kind": "UpdateRequest",
-   "metadata": { "name": "apriltag-tracking-rollout-200" },
+   "metadata": { "name": "apriltag-rollout-v2" },
    "spec": {
       "solutionRef": { "name": "apriltag-tracking", "version": "2.0.0" },
-      "selector": { "matchLabels": { "fleet": "warehouse-a" } },
-      "strategy": { "type": "Canary", "steps": [ { "size": 3 }, { "pause": true }, { "allRemaining": true } ] }
+      "selector": { "matchLabels": { "fleet": "warehouse-a", "role": "canary" } },
+      "strategy": {
+         "type": "Canary",
+         "steps": [ { "size": 2 }, { "pause": true }, { "allRemaining": true } ]
+      }
    }
 }
 ```
+POST that JSON to `/v1alpha2/updaterequests`.
 
-### 🛠️ Muto Stack Model Example (`muto.yaml` excerpt)
-Below shows how the same system might be modeled for the Muto Composer. (Field names illustrative; align with actual Muto schema.)
-```yaml
-```
-
-Update variant (v2)—only changed lines shown:
-```diff
- 
-```
-
-### 🚀 ROS 2 Launch File (Detector + Tracker)
-`apriltag_tracking.launch.py` (simplified):
-```python
-
-```
+## Telemetry
+Primary topics (adjust based on stack edits):
+- `/apriltag/detections` – core detection results
+- `/apriltag/images/debug` – optional visualization (if enabled)
 
 
-### 📡 Telemetry & Status Events
-Recommended topics / messages:
-- `/apriltag/detections` – raw detections
+## Policy Ideas
+- Only update when `battery_state = docked`
+- Abort rollout if detector FPS drops >25% vs baseline
+- Enforce homogeneous tag family config (validate before promotion)
 
-
-### 🔐 Policy Enforcement Ideas
-- Require `docked=true` (battery safe) before allowing update.
-- Enforce max CPU utilization < threshold before rollout (pre-flight check).
-- Canary group = first 5% of targets (Symphony strategy).
-- Automatic rollback if >10% of updated nodes report degraded detection FPS.
-
-### 🧪 Test / Validation Steps
-1. Deploy v1 to a simulated robot (e.g., Gazebo + static AprilTag board).
-2. Verify single family detection.
-3. Publish Solution v2 + create UpdateRequest (canary).
-4. Confirm new environment variables applied (multi-family topics populated).
-5. Validate tracker events appear (`APPEARED`, `UPDATED`, `LOST`).
-6. Scale rollout → full fleet.
-7. Induce fault (remove camera stream) → confirm restart & no infinite loop.
-8. Measure detection latency before/after (optional KPI).
+## Validation Checklist
+| Step | Goal |
+|------|------|
+| Deploy baseline | Detections stream present |
+| Introduce v2 (canary) | No regression in FPS / latency |
+| Multi-family enabled | Second family tags appear |
+| Rollout full fleet | All targets show updated version |
+| Fault injection (camera off) | Recovery without crash loop |
+| Optional tracker (future) | Events: APPEARED / LOST |
 
 
 
-### 🧬 Variation & Extension Ideas
-- Add depth camera & 3D pose refinement node.
-- Introduce semantic fusion with fiducial + QR code pipeline.
-- Add policy: block update if active mission state = "Executing".
-- Integrate uProtocol native pub/sub instead of MQTT bridge.
-- Use hardware acceleration (e.g., GPU build of AprilTag library) as v3 update.
+## Extensions
+- Add depth camera + pose refinement node
+- GPU-accelerated AprilTag library (v3 experiment)
+- Replace MQTT bridge with uProtocol native pub/sub
+- Semantic fusion: combine QR + AprilTag detections
 
-### 📓 Notes
-- JSON/YAML schemas above are illustrative—synchronize with actual Symphony & Muto versions.
-- For real hardware, add camera device plugin .
-- Consider signing container images & verifying signature pre-deployment for security (UN R155/R156 alignment).
+## Notes
+- Always synchronize schema fields with your deployed Symphony/Muto versions
+- For real hardware add a camera device plugin / driver node
+- Consider signed container images + attestation (UN R155/R156 alignment)
 
 ---
-This reference use case is intentionally modular so teams can substitute perception algorithms, add safety constraints, or explore advanced rollout strategies while keeping a clear baseline scenario.
+This sample stays intentionally minimal—layer in tracking, fusion, policies, or acceleration as incremental updates while preserving a stable baseline.
 

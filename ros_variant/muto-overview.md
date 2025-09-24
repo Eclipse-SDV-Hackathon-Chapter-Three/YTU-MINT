@@ -2,20 +2,20 @@
 
 ## Introduction
 
-**Eclipse Muto** is an open-source, declarative orchestrator for managing ROS (Robot Operating System) software stacks on edge devices. It represents a paradigm shift in robotics infrastructure management, enabling cloud-native orchestration of distributed ROS systems while maintaining the real-time performance and deterministic behavior required for robotic applications.
+**Eclipse Muto** is an open-source, declarative orchestrator for managing ROS 2 software stacks on edge devices—bringing cloud-native, model-driven workflows to robotics while preserving real-time characteristics.
 
-**What Muto Provides that is not in ROS 2:**
+**What Muto Adds Beyond ROS 2**
 
 Eclipse Muto bridges the gap between traditional ROS development and modern cloud-native orchestration by providing a **model-based approach** to robot software management. Unlike conventional ROS 2 provisioning methods that require manual intervention and physical access to devices, Muto enables declarative stack definitions that can be managed, versioned, and deployed remotely across entire robot fleets. Muto uses a **Declarative ROS Orchestration** approach:
 
-Muto transforms the traditional imperative ROS launch system into a declarative, serializable format that preserves complete ROS logic while enabling remote management at scale. This allows operators to define the desired state of robot software systems and let Muto automatically handle the complex orchestration required to achieve and maintain that state.
+Muto transforms imperative ROS launch logic into a declarative, serializable model. You define desired state; Muto converges systems to match (start/stop/update/rollback), closing the gap between dev and fleet operations.
 
 **Overview of Muto's Important Modules:**
 
-<img src="https://github.com/eclipse-muto/muto/raw/main/docs/images/muto-modules.png" alt="alt" title="TEclipse Muto Modules" width="50%"  style="border: 1px solid gray;'">
+<img src="https://github.com/eclipse-muto/muto/raw/main/docs/images/muto-modules.png" alt="Muto modules diagram" title="Eclipse Muto Modules" width="50%"  style="border: 1px solid gray;" />
 
-- **Agent**: Secure gateway, protocol-agnostic, delivers the model
-- **Composer**: Enforces the model, manages pipelines, builds, and launches
+- **Agent**: Secure gateway (protocol‑agnostic) delivering models & forwarding status
+- **Composer**: Reconciles & enforces stack model (pipelines, builds, launches)
 
 **Target Use Cases:**
 - **Autonomous Vehicle Fleets**: Centralized management of software stacks across vehicle fleets
@@ -30,12 +30,12 @@ Muto transforms the traditional imperative ROS launch system into a declarative,
 
 Choose your preferred deployment method based on your needs:
 
-### 🐳 **Container Quick Start** (Recommended)
+### 🐳 Container Quick Start (Recommended)
 **Get started in minutes without compilation or complex setup**
 
 Use pre-built container images for the fastest path to running Eclipse Muto with Eclipse Symphony integration:
 
-> **[📦 Quick Start with Containers](./muto-quickstart.md)**
+> **[📦 Quick Start (Containers)](./muto-quickstart.md)**
 > 
 > **Perfect for:**
 > - **Rapid prototyping** and evaluation
@@ -43,12 +43,12 @@ Use pre-built container images for the fastest path to running Eclipse Muto with
 > - **Multi-architecture** support (AMD64/ARM64)
 > - **Minimal setup** - no build tools required
 
-### 🔧 **Source Build Quick Start**
+### 🔧 Source Build Quick Start
 **Build from source for maximum flexibility and customization**
 
 Build Eclipse Muto from source when you need deep customization or development capabilities:
 
-> **[🚀 Quick Start with Eclipse Muto and Eclipse Symphony](./muto-quickstart.md)**
+> **[🚀 Build From Source Guide](./muto-from-source.md)**
 > 
 > **Perfect for:**
 > - **Development** and contributing to Muto
@@ -60,7 +60,7 @@ Build Eclipse Muto from source when you need deep customization or development c
 
 ## Core Architecture
 
-Eclipse Muto provides a modular architecture built around three core components that work together to deliver robust model-based orchestration for ROS-based systems:
+Muto’s modular architecture centers on model ingestion (Agent), reconciliation (Composer), and stack runtime enforcement.
 
 ### **Orchestration Capabilities**
 - **Declarative Configuration**: Stack definitions with comprehensive node specifications
@@ -120,21 +120,21 @@ Muto stacks are built on the foundation of [ROS 2 Launch System](https://docs.ro
 
 Muto supports multiple stack representation formats to accommodate different system complexities and deployment scenarios:
 
-1. **JSON Format** (Declarative Schema): For simpler systems, stacks can be defined as human-readable JSON documents. The schema closely mirrors the ROS 2 Launch model but uses declarative syntax instead of imperative Python code. This format is ideal for:
+1. **JSON Format**: Human-readable; mirrors ROS 2 Launch semantics in declarative form. Ideal for:
    - Simple node configurations
    - Parameter-based deployments  
    - Human-readable stack definitions
    - Version control and configuration management
 
-2. **Binary Archive Format** (Complete Workspace): For complex systems, stacks can be packaged as compressed binary archives containing complete launch workspaces with multiple layered scripts, configuration files, dependencies, and resources. This format supports:
+2. **Binary Archive Format**: Encapsulates a full workspace (launch scripts, configs, assets). Supports:
    - Complex multi-file launch configurations
    - Custom launch scripts and logic
    - Asset bundling (configuration files, models, etc.)
    - Complete workspace portability
 
-3. **Hybrid Format**: Combines JSON metadata with binary asset references for optimal balance of readability and functionality.
+3. **Hybrid Format**: JSON manifest + binary asset references.
 
-A simple JSON format example demonstrating the declarative schema:
+A minimal JSON stack example:
 
 ```json
 {
@@ -218,25 +218,25 @@ A simple JSON format example demonstrating the declarative schema:
 
 ## Advanced Capabilities
 
-### **Pipeline System**
+### Pipeline System
 - **Workflow Engine**: Multi-step pipeline execution with context preservation
 - **Compensation Logic**: Automated failure recovery with compensation steps
 - **Plugin Architecture**: Extensible plugin system for custom operations
 - **Safe Execution**: Secure script evaluation with sandboxing
 
-### **Communication Infrastructure**
+### Communication Infrastructure
 - **Multi-Protocol Support**: MQTT, HTTP, and future Zenoh/uProtocol support
 - **Message Routing**: Intelligent message routing with topic parsing
 - **Security**: Comprehensive authentication and secure communication
 - **Scalability**: Fleet-wide communication patterns with load balancing
 
-### **Digital Twin Integration**
+### Digital Twin Integration
 - **Eclipse Ditto Integration**: Full digital twin representation and synchronization
 - **Telemetry**: Live system state reporting and monitoring
 - **Device Management**: Registration, configuration, and status tracking
 - **Synchronization**: Bi-directional state sync with cloud platforms
 
-### **Native ROS2 Integration**
+### Native ROS 2 Integration
 - **Launch System**: Advanced ROS 2 launch description generation and management  
 - **Node Lifecycle**: Complete control over ROS node start/stop/load operations
 - **Service Integration**: Native ROS2 service calls and message handling
@@ -248,21 +248,21 @@ A simple JSON format example demonstrating the declarative schema:
 
 Muto employs a sophisticated ROS 2 message system for inter-component communication:
 
-#### **Core Messages**
+#### Core Messages
 - **`MutoAction.msg`**: Central action message supporting multiple stack formats (JSON, URL-based, launch descriptions)
 - **`StackManifest.msg`**: Complete stack definition with context, nodes, and configuration
 - **`Gateway.msg`**: Gateway communication protocol messages
 - **`Thing.msg` & `ThingHeaders.msg`**: Digital twin representation and metadata
 
-#### **Service Definitions**
+#### Service Definitions
 - **`CoreTwin.srv`**: Digital twin service interface
 - **`CommandPlugin.srv`**: Command execution service
 - **`ComposePlugin.srv`**: Composition service for stack management
 - **`LaunchPlugin.srv`** & **`NativePlugin.srv`**: Plugin execution services
 
-### Source Structure
+### Source Structure (High-Level)
 
-#### **Agent Module** (`src/agent/`)
+#### Agent Module (`src/agent/`)
 ```
 agent/
 ├── muto_agent.py          # Central message router and coordinator
@@ -283,7 +283,7 @@ agent/
         └── symphony_types.py       # Type definitions
 ```
 
-#### **Composer Module** (`src/composer/`)
+#### Composer Module (`src/composer/`)
 ```
 composer/
 ├── muto_composer.py       # Main orchestration engine
@@ -299,7 +299,7 @@ composer/
 └── plugins/              # Extensible plugin system
 ```
 
-#### **Core Services** (`src/core/`)
+#### Core Services (`src/core/`)
 ```
 core/
 ├── twin.py               # Digital twin implementation
@@ -308,13 +308,13 @@ core/
 
 ### Communication Patterns
 
-#### **Message Flow Architecture**
+#### Message Flow
 1. **Cloud → Agent**: Cloud messages arrive via MQTT
 2. **Agent → Composer**: Processed and routed via ROS Topics
 3. **Composer → Stack**: Pipeline execution and ROS node management
 4. **Twin ← → Cloud**: Digital twin synchronization (MQTT)
 
-#### **State Management**
+#### State Management
 - **Declarative Models**: Stack definitions
 - **Reconciliation Loops**: Continuous state convergence
 - **Event-Driven Updates**: Real-time change propagation  
@@ -382,5 +382,7 @@ When extending Muto:
 
 Choose your preferred deployment approach:
 
-- **🐳 [Container Quick Start](./muto-quickstart.md)** - Fast deployment with pre-built images (recommended)
-- **🔧 [Source Build Quick Start](./muto-from-source.md)** - Build from source for maximum flexibility
+Next steps:
+- 🐳 [Container Quick Start](./muto-quickstart.md)
+- 🔧 [Source Build Guide](./muto-from-source.md)
+- 📦 Sample stacks: [`samples/`](./samples/)

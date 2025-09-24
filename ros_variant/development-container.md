@@ -1,8 +1,8 @@
 # Eclipse Muto VSCode Development Environment Setup with Podman and Dev Containers
 
-This guide provides step-by-step instructions for setting up a VSCode development environment for Eclipse Muto using development containers with Podman. Using Visual Studio Code and Docker Containers will enable you to run your favorite ROS 2 Distribution without the necessity to change your operating system or use a virtual machine. With this guide you can set up a podman container, which can be used for your future ROS 2 projects.
+This guide explains how to set up a VS Code development environment for Eclipse Muto using Dev Containers (Podman or Docker). You get an isolated ROS 2 workspace without altering your host OS.
 
-You can also review instructions from [Setup ROS 2 with VSCode and Docker ](https://docs.ros.org/en/kilted/How-To-Guides/Setup-ROS-2-with-VSCode-and-Docker-Container.html) if you prefer docker. Most instructiosn here will still work.
+You can also review the upstream guide: [Setup ROS 2 with VSCode and Docker](https://docs.ros.org/en/kilted/How-To-Guides/Setup-ROS-2-with-VSCode-and-Docker-Container.html). Most instructions apply similarly when using Podman.
 
 ## Table of Contents
 
@@ -35,14 +35,14 @@ You can also review instructions from [Setup ROS 2 with VSCode and Docker ](http
 
 ```bash
 
-# Clone the Muto repositories
+# Clone Muto repository (with submodules)
 git clone --recurse-submodules https://github.com/eclipse-muto/muto.git
 git submodule update  --recursive --remote
 
-# make sure the src/agent module is on the symphony branch if the above
+# (Optional) verify submodule branches
 git submodule status
 
-# should return smt like:
+# Example expected output:
 +f35c770eade63c8590d541e0ba9fb2c81921ade0 src/agent (heads/symphony)
  cdf7935f1e607e3e8478c0c520e5079d5c8ebc61 src/composer (heads/main)
  9ddf239ca84d649e5ba502a33fec76a392adedf3 src/core (heads/main)
@@ -90,7 +90,8 @@ Create `.devcontainer/devcontainer.json`:
         "-e", "DISPLAY=${env:DISPLAY}"
     ],
     "mounts": [
-       # YOU MAY NOT NEED THIS "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+    # Optional X11 socket (uncomment if you need GUI apps like rviz)
+    # "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
        "source=${env:HOME}/.ssh,target=/home/muto/.ssh,type=bind,consistency=cached"
     ],
     "postCreateCommand": "rosdep update || true && chown -R $(whoami) /home/ws/ && rosdep install --from-paths /home/ws --ignore-src -r -y"
@@ -180,7 +181,7 @@ Create `.vscode/launch.json`:
    - Type and select: `Dev Containers: Reopen in Container`
    - Wait for container to build (first time will take several minutes)
 
-### 2. Build the Workspace
+### 2. Build Workspace
 
 Once inside the container:
 
@@ -196,7 +197,7 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-### 3. Run the Muto System
+### 3. Run Muto System
 
 ```bash
 # Launch the complete Muto system
@@ -211,7 +212,7 @@ ros2 launch launch/muto.launch.py vehicle_namespace:=org.eclipse.muto.test vehic
 ## Development Workflow
 
 
-### 2. Building and Testing
+### 2. Build & Test
 
 ```bash
 # Quick build (from VSCode terminal)
@@ -359,7 +360,7 @@ FROM --platform=linux/amd64 ros:humble
 
 ### 2. Custom Development Images
 
-Create custom base image for faster container startup:
+Create a custom base image for faster container startup:
 
 ```dockerfile
 # custom-muto-dev.Dockerfile

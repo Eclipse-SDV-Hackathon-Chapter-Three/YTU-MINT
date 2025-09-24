@@ -1,16 +1,16 @@
-# Quick Start with Eclipse Muto Containers and Eclipse Symphony
+# Quick Start: Eclipse Muto Containers + Eclipse Symphony
 
 ## Introduction
 
 This guide demonstrates how to set up and deploy Eclipse Muto using pre-built container images with Eclipse Symphony integration for distributed ROS orchestration. This approach eliminates the need to build Muto from source and provides a fast path to get started with containerized deployment.
 
-**What You'll Accomplish:**
+**What You'll Accomplish**
 - Deploy Eclipse Muto using pre-built container images
 - Configure distributed ROS orchestration with cloud management  
 - Deploy and manage ROS stacks remotely via Symphony
 - Monitor and troubleshoot the integrated containerized system
 
-**Architecture Overview:**
+**Architecture Overview**
 ```
 Eclipse Symphony (Cloud Orchestration)
         ↓ MQTT/API
@@ -27,12 +27,12 @@ ROS 2 Nodes & Applications
 - **Multi-Architecture**: Support for both AMD64 and ARM64 platforms
 - **Self-Contained**: All dependencies included in the container
 
-> **📖 For detailed technical information** about Eclipse Muto's architecture, components, and capabilities, see the [Eclipse Muto Overview](../README.md) document.
+> For deeper architecture details see the [Muto Overview](./muto-overview.md) and variant entry [`README.md`](./README.md).
 
 ## Prerequisites
 
 - **Container Runtime**: Podman or Docker with multi-architecture support
-- **Eclipse Symphony Setup**: [Eclipse Symphony Quick Start](https://github.com/eclipse-symphony/symphony/blob/main/docs/README.md) or use the docker-compose setup from [Eclipse Symphony Docker Compose](https://github.com/Eclipse-SDV-Hackathon-Chapter-Three/challenge-mission-update-possible/blob/main/symphony/README.md)
+- **Eclipse Symphony Setup**: [Symphony Quick Start](https://github.com/eclipse-symphony/symphony/blob/main/docs/README.md) or the local compose setup in [`symphony/README.md`](../symphony/README.md)
 - **Network Access**: Host networking for ROS communication
 
 ## Getting Started
@@ -66,7 +66,7 @@ curl http://localhost:8082/v1alpha2/greetings
 
 ### 2. Prepare Muto Configuration
 
-#### Clone Muto Repository for Configuration Files
+#### Clone Repository for Config & Launch Files
 ```bash
 
 # Clone the repository to get configuration and launch files
@@ -76,7 +76,7 @@ git clone git@github.com:Eclipse-SDV-Hackathon-Chapter-Three/challenge-mission-u
 cd challenge-mission-update-possible/ros_variant
 ```
 
-#### Main Configuration (`config/muto.yaml`)
+#### Main Configuration: `config/muto.yaml`
 
 The main configuration file defines the ROS parameters and connections for Muto components. This YAML file configures:
 
@@ -89,11 +89,11 @@ The main configuration file defines the ROS parameters and connections for Muto 
 - **Symphony Integration**: Cloud orchestration settings including API endpoints, MQTT broker configuration, and provider settings
 - **MQTT Connectivity**: Broker connection parameters for both local and cloud communication
 
-> **📝 Configuration Reference**: See [`config/muto.yaml`](../config/muto.yaml) for the complete configuration template with all available parameters and default values.
+> See [`config/muto.yaml`](./config/muto.yaml) for the full template.
 
 **Customization**: Edit the configuration file to match your environment, particularly the Symphony host settings, vehicle identity parameters, and MQTT broker addresses.
 
-#### Launch Configuration (`launch/muto.launch.py`)
+#### Launch File: `launch/muto.launch.py`
 
 The launch file orchestrates the startup of all Muto components and defines their relationships.
 
@@ -106,16 +106,14 @@ The launch file orchestrates the startup of all Muto components and defines thei
 - **Conditional Startup**: Enables/disables components based on configuration (e.g., Symphony integration)
 - **Namespace Handling**: Manages ROS namespaces for multi-vehicle deployments
 
-> **📝 Launch Reference**: See [`launch/muto.launch.py`](../launch/muto.launch.py) for the complete launch configuration that coordinates all Muto components.
+> Launch reference: [`launch/muto.launch.py`](./launch/muto.launch.py)
 
 ### 3. Launch Muto Container System
 
-#### Run Complete Muto System in Container
+#### Run Muto System Container
 
 ```bash
-# Navigate to challenge repository root (where config/ and launch/ directories exist)
-
-# Navigate to the ros directory
+# From repo root navigate into ros variant
 cd challenge-mission-update-possible/ros_variant
 
 ```
@@ -144,7 +142,7 @@ podman run --rm -it \
   - **`-v $(pwd)/config:/work/config:ro`**: Mount local configuration files (read-only)
 - **`--network host`**: Use host networking for ROS communication
 
-#### Alternative: Run with Custom Configuration
+#### Alternative: Custom Configuration Directory
 
 If you want to use different configuration files:
 
@@ -168,7 +166,7 @@ podman run --rm -it \
 
 ### 4. Verify System Operation
 
-#### Monitor Container Logs
+#### Monitor Logs
 
 The container will display logs from all Muto components:
 
@@ -186,7 +184,7 @@ The container will display logs from all Muto components:
 [INFO] [symphony_provider-9]: process started with pid [39]
 ```
 
-#### Expected Successful Startup Messages
+#### Expected Startup Messages
 
 Look for these key messages indicating successful initialization:
 
@@ -197,7 +195,7 @@ Look for these key messages indicating successful initialization:
 [symphony_provider-9] [INFO] [timestamp] [muto.muto_symphony_provider]: Symphony Provider started successfully
 ```
 
-#### Check System Health in Another Terminal
+#### Basic Health Checks (new terminal)
 
 While the container is running, you can verify the system in another terminal:
 
@@ -224,7 +222,7 @@ This hierarchical approach separates device registration, software package defin
 - **Device Identity**: Targets represent physical or logical devices that can execute solutions
 - **Capabilities**: Defines what components and services the device can provide
 
-> **📝 Target Reference**: See [`samples/target.json`](samples/target.json) for the target definition structure that gets automatically registered.
+> Target shape reference: see an example in [`samples/talker-listener/test-robot-debug-target.json`](./samples/talker-listener/test-robot-debug-target.json).
 
 #### Solution Definition (via Symphony API)
 
@@ -242,7 +240,7 @@ cd ./samples
 ./define-solution.sh ./talker-listener/talker-listener.json
 ```
 
-> **📝 Solution Script**: See [`./samples/define-solution.sh`](./samples/define-solution.sh) for an example of how solutions can be created via the Symphony API with base64-encoded stack data.
+> Script reference: [`samples/define-solution.sh`](./samples/define-solution.sh)
 
 #### Instance Deployment (via Symphony API)  
 
@@ -259,7 +257,7 @@ cd ./samples
 ./define-instance.sh  ./talker-listener/talker-listener-instance.json
 ```
 
-> **📝 Instance Script**: See [`./samples/define-instance.sh`](./samples/define-instance.sh) for an example of how instances can be created via the Symphony API.
+> Script reference: [`samples/define-instance.sh`](./samples/define-instance.sh)
 
 **Target-Solution-Instance Benefits**:
 - **Reusability**: Solutions can be deployed to multiple targets
@@ -294,11 +292,11 @@ cd ros_variant/samples
 ./define-instance.sh  ./talker-listener/talker-listener-instance.json
 ```
 
-> **📁 Reference Files**: 
-> - **Stack Definition**: [`./samples/talker-listener/talker-listener.json`](.././samples/talker-listener.json) - ROS node collection to be deployed
-> - **Solution Script**: [`./samples/define-solution.sh`](.././samples/define-solution.sh) - Creates Symphony solution via API
-> - **Instance Script**: [`./samples/talker-listener/instance.json`](.././samples/instance.json) - Instance definition
-> - **Instance Script**: [`./samples/define-instance.sh`](.././samples/define-instance.sh) - Deploys instance via API
+> Reference:
+> - Stack: [`samples/talker-listener/talker-listener.json`](./samples/talker-listener/talker-listener.json)
+> - Solution script: [`samples/define-solution.sh`](./samples/define-solution.sh)
+> - Instance: [`samples/talker-listener/talker-listener-instance.json`](./samples/talker-listener/talker-listener-instance.json)
+> - Instance script: [`samples/define-instance.sh`](./samples/define-instance.sh)
 
 ### 6. System Monitoring & Troubleshooting
 
@@ -330,14 +328,14 @@ curl -H "Content-Type: application/json" \
      http://localhost:8082/v1alpha2/targets
 ```
 
-#### Common Container Issues
+#### Common Issues
 
 - **Port conflicts**: Ensure ports 1883, 3000, 8082 are not in use by other services
 - **Volume mount errors**: Verify that `$(pwd)/config` and `$(pwd)/launch` directories exist
 - **Network connectivity**: Use `--network host` for ROS communication
 - **Container startup failures**: Check that the container image is available locally
 
-#### Debugging Container Issues
+#### Debugging
 
 ```bash
 # Run container with shell access for debugging
@@ -356,7 +354,7 @@ podman run --rm -it \
 
 ### 7. Advanced Container Configuration
 
-#### Using Different Container Tags
+#### Different Container Tags
 
 ```bash
 # Use specific architecture
@@ -396,7 +394,7 @@ podman run --rm -it \
   ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1
 ```
 
-#### Running in Background
+#### Run in Background
 
 ```bash
 # Run container in background (detached mode)
@@ -420,4 +418,4 @@ podman rm muto-system
 
 ---
 
-> **📚 Next Steps**: For comprehensive technical details about Eclipse Muto's architecture, advanced features, and development guide, see the [Eclipse Muto Overview](../README.md) document.
+> Next: dive deeper in the [Muto Overview](./muto-overview.md) or explore sample stacks in [`samples/`](./samples/).
