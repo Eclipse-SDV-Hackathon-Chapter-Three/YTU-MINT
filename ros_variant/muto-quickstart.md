@@ -128,7 +128,7 @@ podman run --rm -it \
   -v $(pwd)/launch:/work/launch:ro \
   -v $(pwd)/config:/work/config:ro \
   --network host \
-  ghcr.io/eclipse-muto/muto:ros2-humble
+  ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1
 ```
 
 #### Launch Arguments Explained
@@ -162,7 +162,7 @@ podman run --rm -it \
   -v $(pwd)/launch:/work/launch:ro \
   -v $(pwd)/my-config:/work/config:ro \
   --network host \
-  ghcr.io/eclipse-muto/muto:ros2-humble
+  ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1
 ```
 
 ### 4. Verify System Operation
@@ -283,7 +283,7 @@ podman run --rm -it \
   -v $(pwd)/launch:/work/launch:ro \
   -v $(pwd)/config:/work/config:ro \
   --network host \
-  ghcr.io/eclipse-muto/muto:ros2-humble
+  ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1
 
 # Step 2: Create solution (in another terminal)
 cd ros_variant/samples
@@ -309,7 +309,7 @@ podman ps
 
 # Stop the Muto container (Ctrl+C in the terminal running it)
 # Or from another terminal:
-podman stop $(podman ps -q --filter ancestor=ghcr.io/eclipse-muto/muto:ros2-humble)
+podman stop $(podman ps -q --filter ancestor=ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1)
 
 # Check container logs if run in background
 podman logs <container-id>
@@ -344,7 +344,7 @@ podman run --rm -it \
   -v $(pwd)/launch:/work/launch:ro \
   -v $(pwd)/config:/work/config:ro \
   --network host \
-  ghcr.io/eclipse-muto/muto:ros2-humble \
+  ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1 \
   /bin/bash
 
 # Inside container, you can inspect the environment:
@@ -364,7 +364,7 @@ podman run --rm -it --arch arm64 \
   -v $(pwd)/launch:/work/launch:ro \
   -v $(pwd)/config:/work/config:ro \
   --network host \
-  ghcr.io/eclipse-muto/muto:ros2-humble
+  ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1
 
 # Use version-specific tag
 podman run --rm -it \
@@ -372,7 +372,7 @@ podman run --rm -it \
   -v $(pwd)/launch:/work/launch:ro \
   -v $(pwd)/config:/work/config:ro \
   --network host \
-  ghcr.io/eclipse-muto/muto:ros2-humble-ubuntu22.04-cpu-2c9bac4-fixed3
+  ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1
 ```
 
 #### Custom Launch Files
@@ -392,7 +392,7 @@ podman run --rm -it \
   -v $(pwd)/my-launch:/work/launch:ro \
   -v $(pwd)/config:/work/config:ro \
   --network host \
-  ghcr.io/eclipse-muto/muto:ros2-humble
+  ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1
 ```
 
 #### Running in Background
@@ -406,7 +406,7 @@ podman run -d \
   -v $(pwd)/launch:/work/launch:ro \
   -v $(pwd)/config:/work/config:ro \
   --network host \
-  ghcr.io/eclipse-muto/muto:ros2-humble
+  ghcr.io/eclipse-muto/muto:ros2-humble-v0.42_build_1
 
 # Monitor logs
 podman logs -f muto-system

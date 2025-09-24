@@ -146,7 +146,7 @@ def generate_launch_description():
         namespace=muto_namespace,
         name="native_plugin",
         package="composer",
-        executable="native_plugin",
+        executable="provision_plugin",
         output="screen",
         parameters=[
             muto_config_file,
