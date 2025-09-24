@@ -4,15 +4,13 @@
 
 **Eclipse Muto** is an open-source, declarative orchestrator for managing ROS (Robot Operating System) software stacks on edge devices. It represents a paradigm shift in robotics infrastructure management, enabling cloud-native orchestration of distributed ROS systems while maintaining the real-time performance and deterministic behavior required for robotic applications.
 
-**What Makes Muto Unique:**
+**What Muto Provides that is not in ROS 2:**
 
-Eclipse Muto bridges the gap between traditional ROS development and modern cloud-native orchestration by providing a **model-based approach** to robot software management. Unlike conventional deployment methods that require manual intervention and physical access to devices, Muto enables declarative stack definitions that can be managed, versioned, and deployed remotely across entire robot fleets.
-
-**Key Innovation - Declarative ROS Orchestration:**
+Eclipse Muto bridges the gap between traditional ROS development and modern cloud-native orchestration by providing a **model-based approach** to robot software management. Unlike conventional ROS 2 provisioning methods that require manual intervention and physical access to devices, Muto enables declarative stack definitions that can be managed, versioned, and deployed remotely across entire robot fleets. Muto uses a **Declarative ROS Orchestration** approach:
 
 Muto transforms the traditional imperative ROS launch system into a declarative, serializable format that preserves complete ROS logic while enabling remote management at scale. This allows operators to define the desired state of robot software systems and let Muto automatically handle the complex orchestration required to achieve and maintain that state.
 
-**Architecture Philosophy:**
+**Overview of Muto's Important Modules:**
 
 <img src="https://github.com/eclipse-muto/muto/raw/main/docs/images/muto-modules.png" alt="alt" title="TEclipse Muto Modules" width="50%"  style="border: 1px solid gray;'">
 
@@ -28,7 +26,37 @@ Muto transforms the traditional imperative ROS launch system into a declarative,
 
 ---
 
-> **🚀 Ready to get started?** Check out the [Quick Start with Eclipse Muto and Eclipse Symphony](./muto-quickstart.md) guide for step-by-step deployment instructions and hands-on examples.
+## Getting Started
+
+Choose your preferred deployment method based on your needs:
+
+### 🐳 **Container Quick Start** (Recommended)
+**Get started in minutes without compilation or complex setup**
+
+Use pre-built container images for the fastest path to running Eclipse Muto with Eclipse Symphony integration:
+
+> **[📦 Quick Start with Containers](./muto-quickstart.md)**
+> 
+> **Perfect for:**
+> - **Rapid prototyping** and evaluation
+> - **Production deployments** with consistent environments
+> - **Multi-architecture** support (AMD64/ARM64)
+> - **Minimal setup** - no build tools required
+
+### 🔧 **Source Build Quick Start**
+**Build from source for maximum flexibility and customization**
+
+Build Eclipse Muto from source when you need deep customization or development capabilities:
+
+> **[🚀 Quick Start with Eclipse Muto and Eclipse Symphony](./muto-quickstart.md)**
+> 
+> **Perfect for:**
+> - **Development** and contributing to Muto
+> - **Custom modifications** to core components
+> - **Advanced debugging** and troubleshooting
+> - **Latest features** from the development branch
+
+---
 
 ## Core Architecture
 
@@ -301,7 +329,7 @@ Before building Eclipse Muto from source, you'll need to set up your development
 
 1. **Install ROS 2 on your system**: Follow the official ROS 2 installation guide for your platform at [https://docs.ros.org/en/humble/Installation.html](https://docs.ros.org/en/humble/Installation.html)
 
-2. **Use a development container with Docker**: For a containerized development environment, see our [Development Container Setup Guide](https://github.com/eclipse-muto/muto/blob/main/docs/development-container.md)
+2. **Use a development container with Docker**: For a containerized development environment, see our [Development Container Setup Guide](./docs/development-container.md)
 
 ### Building from Source
 
@@ -350,4 +378,9 @@ When extending Muto:
 
 ---
 
-> **🚀 Ready to get started?** Check out the [Quick Start with Eclipse Muto and Eclipse Symphony](./muto-quickstart.md) guide for step-by-step deployment instructions and hands-on examples.
+## Ready to Get Started?
+
+Choose your preferred deployment approach:
+
+- **🐳 [Container Quick Start](./muto-quickstart.md)** - Fast deployment with pre-built images (recommended)
+- **🔧 [Source Build Quick Start](./muto-from-source.md)** - Build from source for maximum flexibility

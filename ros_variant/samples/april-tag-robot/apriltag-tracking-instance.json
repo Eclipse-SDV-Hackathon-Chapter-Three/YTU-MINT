@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "name": "apriltag-tracking-instance",
+    "labels": {
+      "muto": "demo"
+    }
+  },
+  "spec": {
+    "solution": "apriltag-tracking-archive:1",
+    "target": {
+      "name": "test-robot-debug"
+    }
+  }
+}

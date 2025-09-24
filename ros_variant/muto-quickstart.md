@@ -1,43 +1,43 @@
-# Quick Start with Eclipse Muto and Eclipse Symphony
+# Quick Start with Eclipse Muto Containers and Eclipse Symphony
 
 ## Introduction
 
-This comprehensive quick start guide demonstrates how to set up and deploy Eclipse Muto with Eclipse Symphony integration for distributed ROS orchestration. Eclipse Muto is an open-source, declarative orchestrator that manages ROS (Robot Operating System) software stacks on edge devices, while Eclipse Symphony provides cloud-native orchestration capabilities for heterogeneous edge environments.
+This guide demonstrates how to set up and deploy Eclipse Muto using pre-built container images with Eclipse Symphony integration for distributed ROS orchestration. This approach eliminates the need to build Muto from source and provides a fast path to get started with containerized deployment.
 
 **What You'll Accomplish:**
-- Deploy a complete Muto + Symphony infrastructure stack
-- Configure distributed ROS orchestration with cloud management
+- Deploy Eclipse Muto using pre-built container images
+- Configure distributed ROS orchestration with cloud management  
 - Deploy and manage ROS stacks remotely via Symphony
-- Monitor and troubleshoot the integrated system
+- Monitor and troubleshoot the integrated containerized system
 
 **Architecture Overview:**
 ```
 Eclipse Symphony (Cloud Orchestration)
         ↓ MQTT/API
-Eclipse Muto Agent (On-Vehicle Gateway)
+Eclipse Muto Container (Containerized Agent & Gateway)
         ↓ ROS Topics  
 Eclipse Muto Composer (Stack Orchestration)
         ↓ Launch System
 ROS 2 Nodes & Applications
 ```
 
-**Integration Benefits:**
-- **Centralized Management**: Control entire robot fleets from Symphony cloud interface
-- **Declarative Deployments**: JSON-based stack definitions with version control
-- **Self-Healing**: Automatic reconciliation and failure recovery
-- **Scalable Operations**: Fleet-wide updates and configuration management
+**Container Benefits:**
+- **Rapid Deployment**: Pre-built images eliminate compilation time
+- **Consistent Environment**: Reproducible deployments across platforms
+- **Multi-Architecture**: Support for both AMD64 and ARM64 platforms
+- **Self-Contained**: All dependencies included in the container
 
-> **📖 For detailed technical information** about Eclipse Muto's architecture, components, and capabilities, see the [Eclipse Muto Overview](./muto-overview.md) document.
+> **📖 For detailed technical information** about Eclipse Muto's architecture, components, and capabilities, see the [Eclipse Muto Overview](../README.md) document.
 
 ## Prerequisites
 
-- **ROS 2** (Humble or later) with `colcon` build tools
-- **Docker** with Compose support for Symphony services
-- **Eclipse Symphony Setup** [Eclipse Symphony Quick Start](https://github.com/eclipse-symphony/symphony/blob/main/docs/README.md) or even better use the docker-compose setup described  [Eclipse Symphony Quick Start](../symphony/README.md)
+- **Container Runtime**: Podman or Docker with multi-architecture support
+- **Eclipse Symphony Setup**: [Eclipse Symphony Quick Start](https://github.com/eclipse-symphony/symphony/blob/main/docs/README.md) or use the docker-compose setup from [Eclipse Symphony Docker Compose](https://github.com/Eclipse-SDV-Hackathon-Chapter-Three/challenge-mission-update-possible/blob/main/symphony/README.md)
+- **Network Access**: Host networking for ROS communication
 
 ## Getting Started
 
-This guide walks you through setting up and running Eclipse Muto with Eclipse Symphony integration, including configuring the complete system for distributed ROS orchestration.
+This guide walks you through setting up and running Eclipse Muto containers with Eclipse Symphony integration.
 
 ### 1. Launch Symphony Infrastructure
 
@@ -64,442 +64,359 @@ curl http://localhost:8082/v1alpha2/greetings
 # Expected response: "Hello from Symphony K8s control plane (S8C)"
 ```
 
-### 2. Configure Muto System
-#### Create Muto Workspace
-You can setup a [muto development workspace](./muto-overview.md#development-and-contribution) or a [development container](https://github.com/eclipse-muto/muto/blob/main/docs/development-container.md)
+### 2. Prepare Muto Configuration
+
+#### Clone Muto Repository for Configuration Files
 ```bash
-# Working folder (or wherever your ROS workspace is with your code and muto)
-cd ~/muto
+
+# Clone the repository to get configuration and launch files
+git clone git@github.com:Eclipse-SDV-Hackathon-Chapter-Three/challenge-mission-update-possible.git
+
+# Navigate to the ros directory
+cd challenge-mission-update-possible/ros_variant
 ```
+
 #### Main Configuration (`config/muto.yaml`)
 
-Create a new configuration or edit the existing one.
-The central configuration file defines all system parameters:
+The main configuration file defines the ROS parameters and connections for Muto components. This YAML file configures:
 
-```yaml
-/**:
-  ros__parameters:
-    # Core ROS Topics
-    stack_topic: "stack"
-    twin_topic: "twin"
-    agent_to_gateway_topic: "agent_to_gateway"
-    gateway_to_agent_topic: "gateway_to_agent"
-    
-    # Digital Twin Configuration
-    twin_url: "https://ditto:ditto@sandbox.composiv.ai"
-    host: sandbox.composiv.ai
-    port: 1883
-    
-    # Vehicle Identity
-    namespace: org.eclipse.muto.sandbox
-    name: test-robot-debug
-    type: real_car
-    attributes: '{"brand": "muto", "model": "composer"}'
-    
-    # Symphony Integration
-    symphony_enabled: True
-    symphony_target_name: "test-robot-debug"
-    symphony_host: "192.168.0.47"  # or localhost for local setup
-    symphony_port: 1883
-    symphony_api_url: "http://localhost:8082/v1alpha2/"
-    symphony_provider_name: "providers.target.mqtt"
-    symphony_client_id: "symphony"
-    symphony_request_topic: "coa-request"
-    symphony_response_topic: "coa-response"
-    symphony_timeout_seconds: "30"
-    symphony_auto_register: False
-```
+**Purpose**: Central configuration for all Muto components including ROS topics, MQTT connections, digital twin integration, and Symphony orchestration settings.
+
+**Key Configuration Areas**:
+- **ROS Topics**: Internal communication channels between Muto components (stack, twin, agent-gateway topics)
+- **Digital Twin Integration**: Eclipse Ditto connection parameters for device state synchronization
+- **Vehicle Identity**: Namespace, name, type, and attributes that uniquely identify the robot/vehicle
+- **Symphony Integration**: Cloud orchestration settings including API endpoints, MQTT broker configuration, and provider settings
+- **MQTT Connectivity**: Broker connection parameters for both local and cloud communication
+
+> **📝 Configuration Reference**: See [`config/muto.yaml`](../config/muto.yaml) for the complete configuration template with all available parameters and default values.
+
+**Customization**: Edit the configuration file to match your environment, particularly the Symphony host settings, vehicle identity parameters, and MQTT broker addresses.
 
 #### Launch Configuration (`launch/muto.launch.py`)
 
-The main launch file orchestrates all Muto components:
+The launch file orchestrates the startup of all Muto components and defines their relationships.
 
-```python
-def generate_launch_description():
-    # Key launch arguments
-    declared_arguments = [
-        DeclareLaunchArgument('enable_symphony', default_value='true'),
-        DeclareLaunchArgument('vehicle_namespace', default_value="org.eclipse.muto.sandbox"),
-        DeclareLaunchArgument('vehicle_name', description="Vehicle ID"),
-        DeclareLaunchArgument('muto_config_file', 
-                            default_value=os.path.join(config_dir, "muto.yaml")),
-        DeclareLaunchArgument('log_level', default_value='INFO')
-    ]
-    ...
-```
+**Purpose**: ROS 2 launch file that coordinates the startup sequence of Muto components including the Agent, Gateway, Composer, and Core modules with proper parameter configuration.
 
-**Key Components Launched:**
-- **Agent**: `muto_agent` - Central message router and orchestration coordinator
-- **MQTT Gateway**: `mqtt` - Communication bridge to cloud systems
-- **Command Plugin**: `commands` - ROS command execution interface
-- **Core Twin**: `twin` - Digital twin management
-- **Composer**: `muto_composer` - Stack orchestration engine
-- **Compose Plugin**: `compose_plugin` - Stack composition services
-- **Launch Plugin**: `launch_plugin` - ROS launch system integration
-- **Symphony Provider**: `symphony_provider` - Symphony integration (conditional)
+**Key Features**:
+- **Component Orchestration**: Manages startup order and dependencies between Muto components
+- **Parameter Management**: Passes configuration from `muto.yaml` to individual ROS nodes
+- **Launch Arguments**: Supports runtime configuration through environment variables like `MUTO_LAUNCH_ARGS`
+- **Conditional Startup**: Enables/disables components based on configuration (e.g., Symphony integration)
+- **Namespace Handling**: Manages ROS namespaces for multi-vehicle deployments
 
-### 3. Launch Muto + Symphony System
+> **📝 Launch Reference**: See [`launch/muto.launch.py`](../launch/muto.launch.py) for the complete launch configuration that coordinates all Muto components.
 
-#### Start Complete Muto System
+### 3. Launch Muto Container System
+
+#### Run Complete Muto System in Container
 
 ```bash
-# Navigate to workspace root
-cd ~/muto
-rosdep update
-rosdep install --from-paths src --ignore-src -r -y
+# Navigate to challenge repository root (where config/ and launch/ directories exist)
+```bash
+# Navigate to the ros directory
+cd challenge-mission-update-possible/ros_variant
 
-# Source ROS environment
-source /opt/ros/humble/setup.bash
-source install/setup.bash
+```
 
-# Launch Muto with Symphony integration
-ros2 launch launch/muto.launch.py \
-    vehicle_namespace:=org.eclipse.muto.test \
-    vehicle_name:=test-robot-debug \
-    enable_symphony:=true \
-    log_level:=INFO
+
+# Launch Muto container with Symphony integration
+podman run --rm -it \
+  -e MUTO_LAUNCH=/work/launch/muto.launch.py \
+  -e MUTO_LAUNCH_ARGS="vehicle_namespace:=org.eclipse.muto.test vehicle_name:=test-robot-debug enable_symphony:=true" \
+  -v $(pwd)/launch:/work/launch:ro \
+  -v $(pwd)/config:/work/config:ro \
+  --network host \
+  ghcr.io/eclipse-muto/muto:ros2-humble
 ```
 
 #### Launch Arguments Explained
 
-- **`vehicle_namespace`**: Hierarchical namespace for device organization (e.g., `org.eclipse.muto.test`)
-- **`vehicle_name`**: Unique device identifier (e.g., `test-robot-debug`)
-- **`enable_symphony`**: Enable/disable Symphony integration (`true`/`false`)
-- **`log_level`**: Logging verbosity (`DEBUG`, `INFO`, `WARN`, `ERROR`)
+- **`MUTO_LAUNCH`**: Path to the launch file inside the container
+- **`MUTO_LAUNCH_ARGS`**: ROS 2 launch arguments:
+  - **`vehicle_namespace`**: Hierarchical namespace for device organization (e.g., `org.eclipse.muto.test`)
+  - **`vehicle_name`**: Unique device identifier (e.g., `test-robot-debug`)
+  - **`enable_symphony`**: Enable/disable Symphony integration (`true`/`false`)
+- **Volume Mounts**:
+  - **`-v $(pwd)/launch:/work/launch:ro`**: Mount local launch files (read-only)
+  - **`-v $(pwd)/config:/work/config:ro`**: Mount local configuration files (read-only)
+- **`--network host`**: Use host networking for ROS communication
+
+#### Alternative: Run with Custom Configuration
+
+If you want to use different configuration files:
+
+```bash
+# Create custom config directory
+mkdir -p ./my-config
+cp config/muto.yaml ./my-config/
+
+# Edit ./my-config/muto.yaml as needed
+# ... make your changes ...
+
+# Launch with custom config
+podman run --rm -it \
+  -e MUTO_LAUNCH=/work/launch/muto.launch.py \
+  -e MUTO_LAUNCH_ARGS="vehicle_namespace:=org.my.company vehicle_name:=my-robot enable_symphony:=true" \
+  -v $(pwd)/launch:/work/launch:ro \
+  -v $(pwd)/my-config:/work/config:ro \
+  --network host \
+  ghcr.io/eclipse-muto/muto:ros2-humble
+```
 
 ### 4. Verify System Operation
 
-#### Check Running Nodes
-```bash
-# List all Muto nodes
-ros2 node list | grep muto
+#### Monitor Container Logs
 
-# Expected output:
-# /muto/agent
-# /muto/gateway  
-# /muto/commands_plugin
-# /muto/core_twin
-# /muto/muto_composer
-# /muto/compose_plugin
-# /muto/native_plugin
-# /muto/launch_plugin
-# /muto/muto_symphony_provider  # if Symphony enabled
+The container will display logs from all Muto components:
+
+```
+[INFO] [launch]: All log files can be found below /root/.ros/log/...
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [muto_agent-1]: process started with pid [23]
+[INFO] [mqtt-2]: process started with pid [25]
+[INFO] [commands-3]: process started with pid [27]
+[INFO] [twin-4]: process started with pid [29]
+[INFO] [muto_composer-5]: process started with pid [31]
+[INFO] [compose_plugin-6]: process started with pid [33]
+[INFO] [native_plugin-7]: process started with pid [35]
+[INFO] [launch_plugin-8]: process started with pid [37]
+[INFO] [symphony_provider-9]: process started with pid [39]
 ```
 
-#### Monitor System Topics
-```bash
-# Monitor stack deployment messages
-ros2 topic echo /muto/stack
+#### Expected Successful Startup Messages
 
-# Monitor twin synchronization
-ros2 topic echo /muto/twin
+Look for these key messages indicating successful initialization:
 
-# Check MQTT gateway communication
-ros2 topic echo /muto/gateway_to_agent
+```
+[muto_agent-1] [INFO] [timestamp] [muto.agent]: Muto Agent started successfully
+[mqtt-2] [INFO] [timestamp] [muto.gateway]: MQTT connection established to sandbox.composiv.ai:1883
+[twin-4] [INFO] [timestamp] [muto.core_twin]: Device registered successfully
+[symphony_provider-9] [INFO] [timestamp] [muto.muto_symphony_provider]: Symphony Provider started successfully
 ```
 
-#### Verify Symphony Integration
-```bash
-# Check Symphony targets (if auto-registration enabled)
-curl -H "Content-Type: application/json" \
-     http://localhost:8082/v1alpha2/targets
+#### Check System Health in Another Terminal
 
-# Monitor Symphony provider logs
-ros2 node info /muto/muto_symphony_provider
+While the container is running, you can verify the system in another terminal:
+
+```bash
+# Test Symphony API health
+curl http://localhost:8082/v1alpha2/greetings
+
+# Check if MQTT broker is accessible
+mosquitto_pub -h localhost -p 1883 -t "test/topic" -m "test message"
 ```
 
+### 5. Deploy ROS Stacks via Symphony
 
+Symphony uses a three-tier orchestration model: **Target** → **Solution** → **Instance**
+
+This hierarchical approach separates device registration, software package definition, and deployment requests into distinct, manageable components.
+
+#### Target Registration (Automatic)
+
+**Target**: Represents the deployment destination (device/robot) with its capabilities, components, and communication topology.
+
+- **Automatic Registration**: The Target is **automatically registered** when the Muto agent starts up
+- **Target Name**: Uses the same name as the vehicle (configured in `config/muto.yaml` as the `name` parameter)
+- **Device Identity**: Targets represent physical or logical devices that can execute solutions
+- **Capabilities**: Defines what components and services the device can provide
+
+> **📝 Target Reference**: See [`samples/target.json`](samples/target.json) for the target definition structure that gets automatically registered.
+
+#### Solution Definition (via Symphony API)
+
+**Solution**: Defines a versioned software package containing ROS stack definitions as base64-encoded payloads.
+
+- **Stack Payload**: Solutions contain the ROS stack definition as a **base64-encoded payload**
+- **API Creation**: Solutions are defined using the Symphony API rather than configuration files
+- **Versioning**: Multiple solution versions can coexist for different deployment scenarios
+- **Component Packaging**: Encapsulates the "what" - the software stack definition that can be deployed
+
+**Creating Solutions**:
+```bash
+# Example: Create a solution using the provided script
+cd ./samples
+./define-solution.sh ./talker-listener/talker-listener.json
+```
+
+> **📝 Solution Script**: See [`./samples/define-solution.sh`](./samples/define-solution.sh) for an example of how solutions can be created via the Symphony API with base64-encoded stack data.
+
+#### Instance Deployment (via Symphony API)  
+
+**Instance**: Defines a deployment request that links a specific Solution version to a specific Target.
+
+- **Deployment Binding**: Creates the logical connection between software (Solution) and hardware (Target)  
+- **API Creation**: Instances are also defined using the Symphony API
+- **Runtime Deployment**: Represents the "where and when" - actual deployments of solutions to targets
+
+**Creating Instances**:
+```bash
+# Example: Create an instance using the provided script  
+cd ./samples
+./define-instance.sh  ./talker-listener/talker-listener-instance.json
+```
+
+> **📝 Instance Script**: See [`./samples/define-instance.sh`](./samples/define-instance.sh) for an example of how instances can be created via the Symphony API.
+
+**Target-Solution-Instance Benefits**:
+- **Reusability**: Solutions can be deployed to multiple targets
+- **Versioning**: Multiple solution versions can coexist  
+- **Flexibility**: Different solution versions can be deployed to different targets
+- **Traceability**: Clear deployment history and relationships
+- **Separation of Concerns**: Device capabilities, software packages, and deployments are managed independently
+
+#### Complete Deployment Workflow
+
+The typical deployment workflow using the provided scripts:
+
+1. **Start Muto Container**: Target gets automatically registered with Symphony
+2. **Create Solution**: Use the solution script to package your ROS stack
+3. **Deploy Instance**: Use the instance script to deploy the solution to the target
+
+```bash
+# Step 1: Start Muto container (Target auto-registers)
+podman run --rm -it \
+  -e MUTO_LAUNCH=/work/launch/muto.launch.py \
+  -e MUTO_LAUNCH_ARGS="vehicle_namespace:=org.eclipse.muto.test vehicle_name:=test-robot-debug enable_symphony:=true" \
+  -v $(pwd)/launch:/work/launch:ro \
+  -v $(pwd)/config:/work/config:ro \
+  --network host \
+  ghcr.io/eclipse-muto/muto:ros2-humble
+
+# Step 2: Create solution (in another terminal)
+cd ros_variant/samples
+./define-solution.sh ./talker-listener/talker-listener.json
+
+# Step 3: Deploy instance  
+./define-instance.sh  ./talker-listener/talker-listener-instance.json
+```
+
+> **📁 Reference Files**: 
+> - **Stack Definition**: [`./samples/talker-listener/talker-listener.json`](.././samples/talker-listener.json) - ROS node collection to be deployed
+> - **Solution Script**: [`./samples/define-solution.sh`](.././samples/define-solution.sh) - Creates Symphony solution via API
+> - **Instance Script**: [`./samples/talker-listener/instance.json`](.././samples/instance.json) - Instance definition
+> - **Instance Script**: [`./samples/define-instance.sh`](.././samples/define-instance.sh) - Deploys instance via API
 
 ### 6. System Monitoring & Troubleshooting
 
-#### Log Analysis
-```bash
-# Check specific node logs
-ros2 run rqt_console rqt_console
+#### Container Management
 
+```bash
+# View running containers
+podman ps
+
+# Stop the Muto container (Ctrl+C in the terminal running it)
+# Or from another terminal:
+podman stop $(podman ps -q --filter ancestor=ghcr.io/eclipse-muto/muto:ros2-humble)
+
+# Check container logs if run in background
+podman logs <container-id>
 ```
 
 #### Health Checks
+
 ```bash
 # Symphony API health
 curl http://localhost:8082/v1alpha2/greetings
 
-# MQTT broker connectivity
+# MQTT broker connectivity  
 mosquitto_pub -h localhost -p 1883 -t "test/topic" -m "test message"
 
-# ROS system health
-ros2 doctor
+# Check Symphony targets
+curl -H "Content-Type: application/json" \
+     http://localhost:8082/v1alpha2/targets
 ```
 
-#### Common Issues
-- **Symphony connection failed**: Verify Docker containers are running and ports are accessible
-- **MQTT authentication errors**: Check credentials in `muto.yaml`
-- **Node startup failures**: Verify ROS dependencies and package installations
-- **Stack deployment errors**: Check JSON syntax and package availability
+#### Common Container Issues
 
-This setup provides a complete Muto + Symphony orchestration system ready for distributed ROS management and deployment.
+- **Port conflicts**: Ensure ports 1883, 3000, 8082 are not in use by other services
+- **Volume mount errors**: Verify that `$(pwd)/config` and `$(pwd)/launch` directories exist
+- **Network connectivity**: Use `--network host` for ROS communication
+- **Container startup failures**: Check that the container image is available locally
 
-## Symphony Integration Deep Dive
+#### Debugging Container Issues
 
-### Provider Architecture
-
-The Symphony integration is built around the `MutoSymphonyProvider` class (`src/agent/agent/symphony/symphony_provider.py`), which implements a sophisticated adapter pattern:
-
-- **Dual Interface Implementation**: Extends both `BaseNode` (ROS 2) and `SymphonyProvider` interfaces
-- **MQTT Bridge**: Integrates with Muto's existing MQTT infrastructure via `MQTTBroker`
-- **State Management**: Comprehensive state tracking and synchronization between Symphony and ROS systems
-- **Component Lifecycle**: Full management of ROS 2 component deployment, monitoring, and cleanup
-
-### Symphony SDK Components
-
-The SDK provides enterprise-grade Symphony integration:
-
-#### **API Client** (`sdk/symphony_api.py`)
-- **Authentication**: Secure token-based authentication with Symphony servers
-- **REST Operations**: Complete CRUD operations for targets, solutions, and instances
-- **Error Handling**: Robust error handling with `SymphonyAPIError` exception hierarchy
-- **Request Management**: Timeout handling, retry logic, and connection pooling
-
-#### **Data Structures** (`sdk/symphony_sdk.py`)
-- **Symphony Compatibility**: Full compliance with Symphony data models:
-  - `ObjectMeta`: Kubernetes-style metadata management
-  - `TargetSelector`: Sophisticated device selection and binding
-  - `ComponentSpec`: Detailed component specification and configuration
-  - `SolutionSpec`: Complete solution definitions with versioning
-- **Serialization**: JSON serialization/deserialization with type safety
-- **State Management**: Comprehensive state tracking with `State` enums
-
-#### **Summary & Results** (`sdk/symphony_summary.py`)
-- **Deployment Tracking**: Detailed deployment result tracking
-- **Component Results**: Per-component status and outcome reporting  
-- **Target Results**: Device-level deployment summaries
-- **State Synchronization**: Real-time state reporting to Symphony
-
-#### **Type System** (`sdk/symphony_types.py`)
-- **State Enums**: Comprehensive state definitions (`Succeeded`, `Failed`, `Running`, etc.)
-- **Constants**: Symphony-specific constants and configuration values
-- **Type Safety**: Strong typing for all Symphony interactions
-
-### Integration Patterns
-
-#### **COA (Component Operational Agreement) Protocol**
-- **Request/Response**: Structured COA request/response handling
-- **Component Management**: Fine-grained component lifecycle control
-- **State Synchronization**: Bi-directional state sync between Symphony and ROS
-- **Error Propagation**: Comprehensive error reporting and handling
-
-#### **MQTT Communication**
-- **Topic Management**: Sophisticated topic routing and message handling
-- **Security**: Secure MQTT communication with authentication
-- **Reliability**: Message persistence and delivery guarantees
-- **Scalability**: Support for fleet-wide communication patterns
-
-### Quick Start: Using Eclipse Muto with Eclipse Symphony
-
-This guide demonstrates how to define a Symphony target (robotic device), describe a Symphony solution (software stack), and match a solution to a target by creating a Symphony instance.
-
-#### 1. Define a Symphony Target (ROS Robotic Device)
-
-The target represents the robotic device on which the Muto agent runs. Register the target with Symphony using the API or CLI tools. Example target registration is handled in orchestration scripts and configuration files.
-
-Symphony API can be used with curl and scripts. But, even better use a REST tools such 
-as [Postman](https://www.postman.com/) and the 
-[Eclipse Symphony Postman Collection](docs/symphony-book/api/symphony-api-postman-collection.json) to work with the API.
-
-
-When muto agent starts, it will automatically registers itself as a target with Symphony withh the following congiguration:
-
-```json
-{
-                "metadata": {
-                    "name": symphony.target
-                },
-                "spec": {
-                    "displayName": symphony.target,
-                    "forceRedeploy": True,
-                    "topologies": [
-                        {
-                            "bindings": [
-                                {
-                                    "role": "muto-agent",
-                                    "provider": symphony.provider_name,
-                                    "config": {
-                                        "name": "proxy",
-                                        "brokerAddress": symphony.broker_address,
-                                        "clientID": symphony.client_id,
-                                        "requestTopic": f"{symphony.topic_prefix}/{symphony.request_topic}",
-                                        "responseTopic": f"{symphony.topic_prefix}/{symphony.response_topic}",
-                                        "timeoutSeconds": symphony.timeout_seconds
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
-````
-
-
-#### 2. Define a Symphony Solution (Software Stack)
-
-The solution describes the software stack to run on the robot. For example, a simple ROS 2 talker-listener stack:
-
-File: `talker-listener.json`
-```json
-{
-   "name": "Muto Simple Talker-Listener Stack",
-   "context": "eteration_office",
-   "stackId": "org.eclipse.muto.sandbox:talker_listener",
-   "node": [
-      {
-         "name": "talker",
-         "pkg": "demo_nodes_cpp",
-         "exec": "talker"
-      },
-      {
-         "name": "listener",
-         "pkg": "demo_nodes_cpp",
-         "exec": "listener"
-      }
-   ]
-}
-```
-To define the solution run the script 
 ```bash
-# base64 encode the stack as a component and 
-# create a solution document and then post it to API
- ./define-solution.sh  talker-listener.json
+# Run container with shell access for debugging
+podman run --rm -it \
+  -v $(pwd)/launch:/work/launch:ro \
+  -v $(pwd)/config:/work/config:ro \
+  --network host \
+  ghcr.io/eclipse-muto/muto:ros2-humble \
+  /bin/bash
 
+# Inside container, you can inspect the environment:
+# ls -la /work/
+# cat /work/config/muto.yaml  # View mounted configuration
+# ros2 node list
 ```
-Script: `src/agent/config/define-instance.sh`
+
+### 7. Advanced Container Configuration
+
+#### Using Different Container Tags
+
 ```bash
-#!/bin/bash
+# Use specific architecture
+podman run --rm -it --arch arm64 \
+  -e MUTO_LAUNCH_ARGS="vehicle_namespace:=org.eclipse.muto.test vehicle_name:=test-robot-debug enable_symphony:=true" \
+  -v $(pwd)/launch:/work/launch:ro \
+  -v $(pwd)/config:/work/config:ro \
+  --network host \
+  ghcr.io/eclipse-muto/muto:ros2-humble
 
-
-# Script to create and deploy solution with base64 encoded stack data
-# Usage: ./define-solution.sh <json-file>
-
-# Check if JSON file argument is provided
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 <json-file>"
-    echo "Example: $0 talker-listener-stack.json"
-    exit 1
-fi
-
-JSON_FILE="$1"
-
-# Check if file exists
-if [ ! -f "$JSON_FILE" ]; then
-    echo "Error: File '$JSON_FILE' not found!"
-    exit 1
-fi
-
-# Extract solution name from filename (remove path and .json extension)
-ROOT_NAME=$(basename "$JSON_FILE" .json)
-SOLUTION_NAME="${ROOT_NAME}-v-1"
-
-export SYMPHONY_API_URL=http://192.168.0.47:8082/v1alpha2/
-
-# Get authentication token
-TOKEN=$(curl -X POST -H "Content-Type: application/json" -d '{"username":"admin","password":""}' "${SYMPHONY_API_URL}users/auth" | jq -r '.accessToken')
-
-# Base64 encode the contents of the JSON file
-STACK_DATA_BASE64=$(base64 -w 0 "$JSON_FILE")
-
-# Create the solution JSON in a variable
-SOLUTION_DATA=$(cat << EOF
-{
-    "metadata": {
-        "namespace": "default",
-        "name": "$SOLUTION_NAME"
-    },
-    "spec": {
-        "displayName": "$SOLUTION_NAME",
-        "rootResource": "$ROOT_NAME",
-        "version": "1",
-        "components": [
-            {
-                "name": "$SOLUTION_NAME",
-                "type": "muto-agent",
-                "properties": {
-                    "type": "stack", 
-                    "content-type": "application/json", 
-                    "data": "$STACK_DATA_BASE64",
-                    "foo": "bar",
-                    "number": 123
-                }
-            }
-        ]
-    }
-}
-EOF
-)
-
-echo "Created solution JSON with base64 encoded stack data"
-echo "Base64 encoded data length: ${#STACK_DATA_BASE64} characters"
-
-# Show current solutions
-# echo "Current solutions:"
-# curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" "${SYMPHONY_API_URL}solutions" | jq .
-
-echo "Posting $SOLUTION_NAME solution to Symphony..."
-
-# Try to delete existing solution first (ignore errors if it doesn't exist)
-# curl -s -X DELETE -H "Authorization: Bearer $TOKEN" "${SYMPHONY_API_URL}solutions/$SOLUTION_NAME" > /dev/null 2>&1
-
-# Post the new solution
-curl -s -v -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d "$SOLUTION_DATA" "${SYMPHONY_API_URL}solutions/$SOLUTION_NAME"
-
+# Use version-specific tag
+podman run --rm -it \
+  -e MUTO_LAUNCH_ARGS="vehicle_namespace:=org.eclipse.muto.test vehicle_name:=test-robot-debug enable_symphony:=true" \
+  -v $(pwd)/launch:/work/launch:ro \
+  -v $(pwd)/config:/work/config:ro \
+  --network host \
+  ghcr.io/eclipse-muto/muto:ros2-humble-ubuntu22.04-cpu-2c9bac4-fixed3
 ```
 
-#### 3. Match Solution with Target: Create a Symphony Instance
+#### Custom Launch Files
 
-To deploy the solution to the target, create a Symphony instance that binds the solution to the device. This is typically done using the `define-instance.sh` script and an instance configuration file.
-
-
-File: `src/agent/config/instance.json`
-```json
-{
-      "metadata": {
-            "name": "test-robot-debug-instance",
-            "labels": {
-                  "muto": "demo"
-            }
-      },
-      "spec": {
-            "solution": "talker-listener:1",
-            "target": {
-                  "name": "test-robot-debug"
-            }
-      }
-}
-```
-
-Script: `src/agent/config/define-instance.sh`
 ```bash
-#!/bin/bash
+# Create custom launch file
+mkdir -p ./my-launch
+cp launch/muto.launch.py ./my-launch/custom-muto.launch.py
 
-export SYMPHONY_API_URL=http://192.168.0.47:8082/v1alpha2/
+# Edit custom launch file as needed
+# ... make your modifications ...
 
-TOKEN=$(curl -X POST -H "Content-Type: application/json" -d '{"username":"admin","password":""}' "${SYMPHONY_API_URL}users/auth" | jq -r '.accessToken')
-
-# Register and list instances
-curl -v -s -X GET  -H "Content-Type: application/json"  -H "Authorization: Bearer $TOKEN"  "${SYMPHONY_API_URL}instances"
-
-# Read instance.json and create Symphony instance
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOLUTION_DATA=$(cat "$SCRIPT_DIR/instance.json")
-
-curl -v -s -X POST  -H "Content-Type: application/json"  -H "Authorization: Bearer $TOKEN" -d "$SOLUTION_DATA" "${SYMPHONY_API_URL}instances/test-robot-debug-instance"
+# Use custom launch file
+podman run --rm -it \
+  -e MUTO_LAUNCH=/work/launch/custom-muto.launch.py \
+  -e MUTO_LAUNCH_ARGS="vehicle_namespace:=org.eclipse.muto.test vehicle_name:=test-robot-debug enable_symphony:=true" \
+  -v $(pwd)/my-launch:/work/launch:ro \
+  -v $(pwd)/config:/work/config:ro \
+  --network host \
+  ghcr.io/eclipse-muto/muto:ros2-humble
 ```
 
-This process:
-- Registers the robotic device (target) with Symphony
-- Defines the software stack (solution) to run
-- Creates an instance binding the solution to the target, enabling Muto and Symphony to orchestrate the deployment and lifecycle of ROS components
+#### Running in Background
 
-For more details, see the SDK and provider documentation in `src/agent/agent/symphony/README.md`.
+```bash
+# Run container in background (detached mode)
+podman run -d \
+  --name muto-system \
+  -e MUTO_LAUNCH=/work/launch/muto.launch.py \
+  -e MUTO_LAUNCH_ARGS="vehicle_namespace:=org.eclipse.muto.test vehicle_name:=test-robot-debug enable_symphony:=true" \
+  -v $(pwd)/launch:/work/launch:ro \
+  -v $(pwd)/config:/work/config:ro \
+  --network host \
+  ghcr.io/eclipse-muto/muto:ros2-humble
+
+# Monitor logs
+podman logs -f muto-system
+
+# Stop background container
+podman stop muto-system
+podman rm muto-system
+```
+
 
 ---
 
-> **📚 Next Steps**: For comprehensive technical details about Eclipse Muto's architecture, advanced features, and development guide, see the [Eclipse Muto Overview](./muto-overview.md) document.
+> **📚 Next Steps**: For comprehensive technical details about Eclipse Muto's architecture, advanced features, and development guide, see the [Eclipse Muto Overview](../README.md) document.

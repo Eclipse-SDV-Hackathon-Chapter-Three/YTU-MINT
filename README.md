@@ -47,7 +47,6 @@ This robotics (ROS) variant of the challenge focuses on orchestrating secure, sc
 
 **Key Technologies:**
 - **Eclipse Symphony:** Acts as the central orchestrator, managing update workflows, device provisioning, and monitoring across distributed robotic fleets.
-- **Eclipse uProtocol:** Enables secure, interoperable communication between robotic components, orchestrators, and services, supporting reliable update delivery and telemetry.
 - **Eclipse Muto:** Serves as the in-robot orchestrator, handling ros workspaces, ros nodes and configurations, update execution, and policy enforcement on robotic hardware.
 
 **Challenge Outline:**
@@ -56,8 +55,12 @@ This robotics (ROS) variant of the challenge focuses on orchestrating secure, sc
 - Demonstrate multi-site distribution, partial updates, rollback, and device provisioning.
 - Use simulated agents and uServices to showcase update delivery, verification, and telemetry reporting.
 - Ensure the solution meets security, traceability, and auditability requirements for robotic fleets.
+- **uProtocol** This super extension of the challenge requires you to adaapt the uProtocol ıTargetProvider to work with muto agent to use uProtocol and uServices instead of the MQTT and the builtin SymphonyProvider. **Eclipse uProtocol:** Enables secure, interoperable communication between robotic components, orchestrators, and services, supporting reliable update delivery and telemetry.
 
 This ROS variant highlights the flexibility and power of Symphony, uProtocol, and Muto in managing complex update scenarios for robotics platforms, enabling safe, reliable, and auditable software delivery.
+
+
+
 
 ---
 ### Eclipse Projects Referenced
