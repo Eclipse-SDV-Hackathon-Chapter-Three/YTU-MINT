@@ -92,20 +92,10 @@ curl -s http://localhost:8082/v1alpha2/instances | jq '.items[] | select(.metada
 Create an UpdateRequest (adjust labels to match your fleet):
 ```json
 {
-   "apiVersion": "symphony/v1alpha2",
-   "kind": "UpdateRequest",
-   "metadata": { "name": "apriltag-rollout-v2" },
-   "spec": {
-      "solutionRef": { "name": "apriltag-tracking", "version": "2.0.0" },
-      "selector": { "matchLabels": { "fleet": "warehouse-a", "role": "canary" } },
-      "strategy": {
-         "type": "Canary",
-         "steps": [ { "size": 2 }, { "pause": true }, { "allRemaining": true } ]
-      }
-   }
+   //TODO (TARGET <- SOLUTIONv2 <- INSTANCEv2)
 }
 ```
-POST that JSON to `/v1alpha2/updaterequests`.
+POST that JSON to `/v1alpha2/solution`.
 
 ## Telemetry
 Primary topics (adjust based on stack edits):
