@@ -10,12 +10,19 @@ The cloud component is launched through a Docker Compose file that includes the 
 
 The in-vehicle component is managed via Eclipse Ankaios and comes with a predefined [Ankaios manifest](https://eclipse-ankaios.github.io/ankaios/0.6/reference/startup-configuration/) called [state.yaml](./ankaios/state.yaml), which launches the following workloads:
 
-- `virtual_ecu`: a demo virtual ECU logging output to the console, representing a target that can be updated.
 - `update_trigger`: a web-based workload accessible at `http://localhost:5500` with a button to instruct Eclipse Ankaios to start the `symphony` in-vehicle workload.
 - `symphony`: the Symphony Target Provider workload that receives updates over MQTT from the Symphony management plane in the cloud.
 - `Ankaios_Dashboard`: The [Ankaios Dashboard](https://github.com/eclipse-ankaios-dashboard/ankaios-dashboard/tree/v0.6.0) visualizing an Ankaios cluster in a WebUI.
 
-The `update_trigger` workload uses the Ankaios SDK [ank-sdk-python](https://github.com/eclipse-ankaios/ank-sdk-python/tree/v0.6.0) to dynamically start the `symphony` in-vehicle workload. In real-world scenarios, ECU updates are typically triggered only under certain conditions (e.g., when the vehicle is parked at home). You can use Eclipse Ankaios’ dynamic features to start workloads programmatically. The workload runs a FastAPI backend that provides a simple `Update` button to trigger the update. Normally, a user must confirm an update, which serves as a foundation for an enhanced workflow. Once triggered, the Ankaios SDK instructs Ankaios to start the `symphony` provider workload, which fetches updates from the Symphony cloud control plane over MQTT. The demo does not update the `virtual_ecu`; implementing the update logic is your task by creating a `Symphony Target Rust Provider`. Feel free to enhance this basic scenario.
+The `update_trigger` workload uses the Ankaios SDK [ank-sdk-python](https://github.com/eclipse-ankaios/ank-sdk-python/tree/v0.6.0) to dynamically start the `symphony` in-vehicle workload. In real-world scenarios, ECU updates are typically triggered only under certain conditions (e.g., when the vehicle is parked at home). You can use Eclipse Ankaios’ dynamic features to start workloads programmatically. The workload runs a FastAPI backend that provides a simple `Update` button to trigger the update. Normally, a user must confirm an update, which serves as a foundation for an enhanced workflow. Once triggered, the Ankaios SDK instructs Ankaios to start the `symphony` provider workload, which fetches updates from the Symphony cloud control plane over MQTT. implementing the update logic is your task by creating a `Symphony Target Rust Provider`. Feel free to enhance this basic scenario.
+
+**Updating SDV workloads:**
+
+Write a custom workload and start it with Ankaios by adding the workload configuration to the existing Ankaios manifest [state.yaml](./ankaios/state.yaml). Use Symphony and the Symphony Agent Provider workload to update your custom workload to a newer version.
+
+**Updating an ECU:**
+
+Try to connect a Eclipse ThreadX board and try to update this from an updater workload implemented by you. To flash the ThreadX board with a new software, you may use the following [flash script](https://github.com/odlot/challenge-threadx-and-beyond/blob/36819d3aaff639e80dc441412acf88f6b3a705ce/MXChip/AZ3166/scripts/flash.sh). Think about how to integrate the update procedure to flash ThreadX into an containerized workload managed by Ankaios. As hint: You can put a container into `privileged` mode and also mount the USB device into the container.
 
 ## Architectural Overview
 
@@ -107,7 +114,6 @@ WORKLOAD NAME       AGENT     RUNTIME   EXECUTION STATE   ADDITIONAL INFO
 Ankaios_Dashboard   agent_A   podman    Running(Ok)
 symphony            agent_A   podman    Running(Ok)
 update_trigger      agent_A   podman    Running(Ok)
-virtual_ecu         agent_A   podman    Running(Ok)
 ```
 7. Open a terminal window and navigate to `samples/ankaios_provider` and execute the script `test_ankaios_provider.sh`. You can use the script to create and then destroy a Target (named `ankaios-target`). It sends the provided sample target definition `target.json` containing a new workload `ankaios-app` with a Nginx container to the Symphony management plane and the Symphony Agent Provider workload receives this payload and instructs Ankaios to create this new workload. Target definition snippet:
 ```json

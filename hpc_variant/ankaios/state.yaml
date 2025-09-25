@@ -33,14 +33,6 @@ workloads:
     runtimeConfig: |
       image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.40
       commandOptions: ["-e","CONFIG=/symphony-agent.json"]
-  virtual_ecu:
-    runtime: podman
-    agent: agent_A
-    restartPolicy: NEVER
-    # the image with the command args must be replaced with the virtual ECU image
-    runtimeConfig: |
-      image: ghcr.io/eclipse-ankaios/tests/alpine:latest
-      commandArgs: [ "sh", "-c", "trap 'echo; exit' SIGINT SIGTERM; while true; do echo 'Hello from ECU 1'; sleep 1; done" ]
   Ankaios_Dashboard:
     runtime: podman
     agent: agent_A
