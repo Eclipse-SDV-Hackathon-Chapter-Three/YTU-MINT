@@ -31,7 +31,7 @@ workloads:
       - mountPoint: "/symphony-agent.json"
         data: "{{symphony_config}}"
     runtimeConfig: |
-      image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.40
+      image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.41
       commandOptions: ["-e","CONFIG=/symphony-agent.json"]
   Ankaios_Dashboard:
     runtime: podman
