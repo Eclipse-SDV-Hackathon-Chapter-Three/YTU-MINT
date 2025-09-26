@@ -9,7 +9,7 @@ workloads:
   symphony:
     ...
     runtimeConfig: |
-      image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.40
+      image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.41
       commandOptions: ["--privileged", "--net=host", "-e","CONFIG=/symphony-agent.json"]
 ```
 

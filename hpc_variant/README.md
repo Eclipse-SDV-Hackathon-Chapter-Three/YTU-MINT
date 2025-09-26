@@ -40,7 +40,7 @@ In-vehicle Workloads/ECUs
 ## Prerequisites
 
 - Any Linux or WSL2 on Windows
-- [Eclipse Symphony 0.48-proxy.40](https://github.com/eclipse-symphony/symphony/releases/tag/0.48-proxy.40)
+- [Eclipse Symphony 0.48-proxy.41](https://github.com/eclipse-symphony/symphony/releases/tag/0.48-proxy.41)
 - [Eclipse Ankaios v0.6.0](https://github.com/eclipse-ankaios/ankaios/releases/tag/v0.6.0)
 - [Podman](https://podman.io/docs/installation#installing-on-linux)
 - [Docker](https://www.docker.com/) with Compose support
