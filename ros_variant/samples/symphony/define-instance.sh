@@ -27,7 +27,7 @@ TOKEN=$(curl -X POST -H "Content-Type: application/json" -d '{"username":"admin"
 
 # Prompt user to press Enter to continue after the target has been registered
 
-curl -v -s -X GET  -H "Content-Type: application/json"  -H "Authorization: Bearer $TOKEN"  "${SYMPHONY_API_URL}instances"
+curl -X GET  -H "Content-Type: application/json"  -H "Authorization: Bearer $TOKEN"  "${SYMPHONY_API_URL}instances"
 
 # Read & mutate JSON: overwrite metadata.name with INSTANCE_NAME using jq
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,10 +39,14 @@ fi
 # Use --arg to safely inject shell variable
 SOLUTION_DATA=$(jq --arg name "$INSTANCE_NAME" '(.metadata //= {}) | .metadata.name = $name' "$JSON_FILE")
 
-echo "Posting instance with metadata.name=$INSTANCE_NAME"
-curl -v -s -X POST \
+
+HTTP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}"  -X POST \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $TOKEN" \
     -d "$SOLUTION_DATA" \
-    "${SYMPHONY_API_URL}instances/${INSTANCE_NAME}"
-
+    "${SYMPHONY_API_URL}instances/${INSTANCE_NAME}")
+if [ "$HTTP_RESPONSE" -eq 200 ] || [ "$HTTP_RESPONSE" -eq 204 ]; then
+    echo "Instance '${INSTANCE_NAME}' created successfully."
+else
+    echo "Failed to create instance '${INSTANCE_NAME}'. HTTP status: $HTTP_RESPONSE"
+fi
