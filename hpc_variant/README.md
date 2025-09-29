@@ -92,6 +92,8 @@ Start the Ankaios server and Ankaios agent with systemd:
 sudo systemctl start ank-server ank-agent
 ```
 
+The example uses an `update_trigger` workload which is added as prebuilt container image (`ghcr.io/eclipse-sdv-hackathon-chapter-three/mission-update/update_trigger:latest`) to the Ankaios manifest [state.yaml](./ankaios/state.yaml) already. However, if the network quality is too poor to download the prebuilt image, please build the container image locally like discribed in [ankaios/custom_workloads/update_trigger/README.md](./ankaios/custom_workloads/update_trigger/README.md) and exchange the container image in the Ankaios manifest to point to the local one.
+
 To run the over-the-air (OTA) scenario, just apply the [state.yaml](./ankaios/state.yaml) containing the workloads of the demo screnario:
 
 ```shell
@@ -103,7 +105,7 @@ For applying incremental changes during the development you might update the [st
 ### Do the demo
 
 1. Open the Ankaios Dashboard at `http://localhost:5001` and go to the Workloads tab.
-2. Open the `update_trigger` WebUI at `http://localhost:5500` and click the Trigger Update button. You should see a successfull toast message at the bottom.
+2. Open the `update_trigger` WebUI at `http://localhost:5500` and click the Trigger Update button. You should see a successfull toast message at the bottom after a while (the first start is slow because the `symphony` container image must be downloaded first times, open a new terminal and check the state of the new workloads with `ank get workloads --watch`).
 3. The `update_trigger` workload sets the empty agent name of the `symphony` workload (Symphony Target Provider) to the running Ankaios Agent named `agent_A` via the Ankaios Python SDK. This instructs Ankaios to schedule and start the `symphony` workload.
 4. The `symphony` workload connects to the Symphony cloud management plane via MQTT and is ready to receive updates.
 5. You can see in the Ankaios Dashboard, that the `symphony` workload is running.

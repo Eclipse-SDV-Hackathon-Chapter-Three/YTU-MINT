@@ -11,7 +11,7 @@ Once the `symphony` workload is started it connects to the Symphony management p
 Before running the Ankaios manifest [state.yaml](../../state.yaml) you must build the container image first with:
 
 ```shell
-sudo podman build -t localhost/update_trigger_workload:0.1 .
+sudo podman build -t localhost/update_trigger:0.1 .
 ```
 
 ## Run
