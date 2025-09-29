@@ -3,8 +3,7 @@ services:
   symphony-api:
     image: ghcr.io/eclipse-symphony/symphony-api:0.48-proxy.41
     container_name: symphony-api
-    ports:
-      - "8082:8082"
+    network_mode: host
     environment:
       - USE_SERVICE_ACCOUNT_TOKENS=false
       - SYMPHONY_API_URL=http://localhost:8082/v1alpha2/
@@ -16,8 +15,7 @@ services:
   symphony-portal:
     image: ghcr.io/eclipse-symphony/symphony-portal:0.48-proxy.40
     container_name: symphony-portal
-    ports:
-      - "3000:3000"
+    network_mode: host
     environment:
       - SYMPHONY_API=http://symphony-api:8082/v1alpha2/
       - NEXTAUTH_SECRET=SymphonyKey
