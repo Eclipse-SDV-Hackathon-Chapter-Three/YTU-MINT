@@ -123,7 +123,7 @@ configs:
                     "config": {
                       "name": "ankaios-type",
                       "libFile": "/extensions/libankaios.so",
-                      "libHash": "4a688c9c80adf6d10d52eab1aca0877832f2f070aee233c271f16536941eec0b"
+                      "libHash": "8f113c6a278c9529f0cc4f61ff5b4e581d527aae5ad38f9fd2f491aaee4e0987"
                     }
                   }
                 }
