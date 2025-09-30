@@ -1,0 +1,19 @@
+{
+  "watch": [
+    ".",
+    "routes",
+    "services",
+    "utils"
+  ],
+  "ext": "js,json,yaml",
+  "ignore": [
+    "node_modules",
+    "ankaios_states",
+    "*.log"
+  ],
+  "delay": 1000,
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "verbose": true
+}
