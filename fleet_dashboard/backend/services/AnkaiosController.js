@@ -37,37 +37,34 @@ class AnkaiosController {
     }
   }
 
-  async spawnCarAgent(car) {
-    const agentName = car.metadata.agentName;
-    const workloadName = car.metadata.workloadName;
+  async spawnCarAgent(agent) {
+    const agentName = agent.metadata.agentName;
     
     try {
       // Clean up any existing containers with the same name
-      await this.cleanupExistingContainer(car.id);
+      await this.cleanupExistingContainer(agent.id);
       
-      // Create Ankaios state file for this car
-      const stateFile = await this.createStateFile(car);
+      // Create Ankaios state file for this agent
+      const stateFile = await this.createStateFile(agent);
       
       // Spawn Ankaios agent as child process
-      logger.info(`Spawning Ankaios agent for car ${car.id} with state file: ${stateFile}`);
+      logger.info(`Spawning Ankaios agent for agent ${agent.id} with state file: ${stateFile}`);
       const agentProcess = spawn(this.ankaiosPath, ['apply', stateFile], {
         stdio: ['pipe', 'pipe', 'pipe'],
         env: {
           ...process.env,
-          CAR_ID: car.id,
-          CAR_NAME: car.name,
-          CAR_REGION: car.region,
-          CAR_STATE: car.state,
-          CAR_VERSION: car.version
+          AGENT_ID: agent.id,
+          AGENT_CITY: agent.city,
+          AGENT_STATE: agent.state,
+          AGENT_STATUS: agent.status
         }
       });
 
       // Store agent process
-      this.activeAgents.set(car.id, {
+      this.activeAgents.set(agent.id, {
         process: agentProcess,
-        carId: car.id,
+        agentId: agent.id,
         agentName,
-        workloadName,
         stateFile,
         startTime: new Date().toISOString()
       });
@@ -75,32 +72,32 @@ class AnkaiosController {
       // Handle process events
       agentProcess.on('error', (error) => {
         logger.error(`Ankaios agent ${agentName} error:`, error);
-        this.handleAgentError(car.id, error);
+        this.handleAgentError(agent.id, error);
       });
 
       agentProcess.on('exit', (code, signal) => {
         logger.info(`Ankaios agent ${agentName} exited with code ${code}, signal ${signal}`);
-        this.handleAgentExit(car.id, code, signal);
+        this.handleAgentExit(agent.id, code, signal);
       });
 
       // Handle stdout/stderr
       agentProcess.stdout.on('data', (data) => {
         const output = data.toString();
         logger.debug(`Ankaios agent ${agentName} stdout:`, output);
-        this.handleAgentOutput(car.id, output, 'stdout');
+        this.handleAgentOutput(agent.id, output, 'stdout');
       });
 
       agentProcess.stderr.on('data', (data) => {
         const output = data.toString();
         logger.debug(`Ankaios agent ${agentName} stderr:`, output);
-        this.handleAgentOutput(car.id, output, 'stderr');
+        this.handleAgentOutput(agent.id, output, 'stderr');
       });
 
-      logger.info(`Spawned Ankaios agent ${agentName} for car ${car.id}`);
-      return { success: true, agentName, workloadName };
+      logger.info(`Spawned Ankaios agent ${agentName} for agent ${agent.id}`);
+      return { success: true, agentName, stateFile };
 
     } catch (error) {
-      logger.error(`Failed to spawn Ankaios agent for car ${car.id}:`, error);
+      logger.error(`Failed to spawn Ankaios agent for agent ${agent.id}:`, error);
       throw error;
     }
   }
@@ -126,23 +123,31 @@ class AnkaiosController {
     return 9000 + Math.floor(Math.random() * 1000);
   }
 
-  async createStateFile(car) {
+  async createStateFile(agent) {
     // Get an available port
     const uniquePort = await this.getAvailablePort();
     
+    // Create the car agent itself (not workloads on test_agent)
+    const agentName = agent.name || `car-${agent.id}`;
+    
+    // Create workloads for each ECU that run on THIS car agent
+    const workloads = {};
+    agent.workloads.forEach((ecu, index) => {
+      const workloadName = `${ecu.name}-${agent.id}`;
+      workloads[workloadName] = {
+        runtime: 'podman',
+        agent: agentName, // Run on the car agent, not test_agent
+        restartPolicy: 'ON_FAILURE',
+        runtimeConfig: `image: ${agent.metadata.containerImage}\n  commandOptions: ["-p","${uniquePort + index}:80","--name","${ecu.name}-${agent.id}","--env","AGENT_ID=${agent.id}","--env","ECU_NAME=${ecu.name}","--env","ECU_VERSION=${ecu.version}","--env","CITY=${agent.city}","--env","STATE=${agent.state}"]`
+      };
+    });
+    
     const stateContent = {
       apiVersion: 'v0.1',
-      workloads: {
-        [car.metadata.workloadName]: {
-          runtime: 'podman',
-          agent: 'test_agent',
-          restartPolicy: 'ON_FAILURE',
-          runtimeConfig: `image: ${car.metadata.containerImage}\n  commandOptions: ["-p","${uniquePort}:80","--name","car-${car.id}","--env","CAR_ID=${car.id}","--env","CAR_REGION=${car.region}","--env","CAR_STATE=${car.state}","--env","CAR_VERSION=${car.version}"]`
-        }
-      }
+      workloads
     };
 
-    const stateFile = path.join(this.stateFilePath, `state-${car.id}.yaml`);
+    const stateFile = path.join(this.stateFilePath, `state-${agent.id}.yaml`);
     await fs.writeFile(stateFile, this.yamlStringify(stateContent));
     
     return stateFile;

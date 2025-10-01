@@ -6,6 +6,8 @@ import {
   Upload, 
   Monitor, 
   Settings, 
+  Server,
+  Target,
   ChevronRight 
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -15,6 +17,8 @@ const navigation = [
   { name: 'Cars', href: '/cars', icon: Car },
   { name: 'Updates', href: '/updates', icon: Upload },
   { name: 'Monitoring', href: '/monitoring', icon: Monitor },
+  { name: 'Ankaios RPC', href: '/ankaios-rpc', icon: Server },
+  { name: 'ACME Fleet', href: '/acme', icon: Target },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

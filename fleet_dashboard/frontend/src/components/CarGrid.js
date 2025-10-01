@@ -112,15 +112,15 @@ const CarGrid = ({ cars, onDelete, onUpdateState, showActions = true }) => {
           {/* Details */}
           <div className="space-y-2 mb-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">Region</span>
+              <span className="text-xs text-gray-500">City</span>
               <div className="flex items-center space-x-1">
                 <MapPin className="h-3 w-3 text-gray-400" />
-                <span className="text-xs font-medium text-gray-900">{car.region}</span>
+                <span className="text-xs font-medium text-gray-900">{car.city}</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">Version</span>
-              <span className="text-xs font-medium text-gray-900">{car.version}</span>
+              <span className="text-xs text-gray-500">ECUs</span>
+              <span className="text-xs font-medium text-gray-900">{car.workloads?.length || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500">Last Updated</span>
@@ -129,6 +129,24 @@ const CarGrid = ({ cars, onDelete, onUpdateState, showActions = true }) => {
               </span>
             </div>
           </div>
+
+          {/* Workloads (ECUs) */}
+          {car.workloads && car.workloads.length > 0 && (
+            <div className="pt-3 border-t border-gray-200">
+              <div className="space-y-1">
+                <span className="text-xs text-gray-500">ECUs:</span>
+                {car.workloads.slice(0, 3).map((workload, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <span className="text-xs text-gray-600">{workload.name}</span>
+                    <span className="text-xs font-medium text-gray-900">{workload.version}</span>
+                  </div>
+                ))}
+                {car.workloads.length > 3 && (
+                  <span className="text-xs text-gray-400">+{car.workloads.length - 3} more</span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Agent Status */}
           {car.agentStatus && (

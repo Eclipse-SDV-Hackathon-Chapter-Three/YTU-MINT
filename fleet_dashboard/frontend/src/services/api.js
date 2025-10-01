@@ -45,17 +45,35 @@ api.interceptors.response.use(
   }
 );
 
-// Car API
+// Agent API (new agent-based system)
+export const agentApi = {
+  getAll: () => api.get('/agents'),
+  getById: (id) => api.get(`/agents/${id}`),
+  create: (data) => api.post('/agents', data),
+  updateState: (id, state) => api.put(`/agents/${id}/state`, { state }),
+  updateStatus: (id, status) => api.put(`/agents/${id}/status`, { status }),
+  updateWorkloadVersion: (id, workloadName, newVersion) => 
+    api.put(`/agents/${id}/workloads/${workloadName}/version`, { newVersion }),
+  addWorkload: (id, workload) => api.post(`/agents/${id}/workloads`, workload),
+  removeWorkload: (id, workloadName) => api.delete(`/agents/${id}/workloads/${workloadName}`),
+  delete: (id) => api.delete(`/agents/${id}`),
+  getByCity: (city) => api.get(`/agents/city/${city}`),
+  getByState: (state) => api.get(`/agents/state/${state}`),
+  getStats: () => api.get('/agents/stats/overview'),
+  exportData: () => api.get('/agents/export/data'),
+};
+
+// Car API (legacy - for backward compatibility)
 export const carApi = {
-  getAll: () => api.get('/cars'),
-  getById: (id) => api.get(`/cars/${id}`),
-  create: (data) => api.post('/cars', data),
-  updateState: (id, state) => api.put(`/cars/${id}/state`, { state }),
-  delete: (id) => api.delete(`/cars/${id}`),
-  getByRegion: (region) => api.get(`/cars/region/${region}`),
-  getByState: (state) => api.get(`/cars/state/${state}`),
-  getByStatus: (status) => api.get(`/cars/status/${status}`),
-  getStats: () => api.get('/cars/stats/overview'),
+  getAll: () => agentApi.getAll(), // Redirect to agents
+  getById: (id) => agentApi.getById(id),
+  create: (data) => agentApi.create(data),
+  updateState: (id, state) => agentApi.updateState(id, state),
+  delete: (id) => agentApi.delete(id),
+  getByRegion: (region) => agentApi.getByCity(region), // Map region to city
+  getByState: (state) => agentApi.getByState(state),
+  getByStatus: (status) => agentApi.getByState(status), // Map status to state
+  getStats: () => agentApi.getStats(),
 };
 
 // Update API

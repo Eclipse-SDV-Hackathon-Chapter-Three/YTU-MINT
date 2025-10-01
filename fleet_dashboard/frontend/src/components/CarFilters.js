@@ -3,7 +3,7 @@ import { Search, Filter, X } from 'lucide-react';
 import clsx from 'clsx';
 
 const CarFilters = ({ filters, onFiltersChange }) => {
-  const regions = ['Munich', 'Berlin', 'Hamburg', 'Cologne', 'Frankfurt'];
+  const cities = ['Munich', 'Berlin', 'Hamburg', 'Cologne', 'Frankfurt'];
   const states = ['parked', 'driving'];
   const statuses = ['running', 'updating', 'failed', 'stopped'];
 
@@ -16,7 +16,7 @@ const CarFilters = ({ filters, onFiltersChange }) => {
 
   const clearFilters = () => {
     onFiltersChange({
-      region: '',
+      city: '',
       state: '',
       status: '',
       search: '',
@@ -56,24 +56,24 @@ const CarFilters = ({ filters, onFiltersChange }) => {
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               className="input pl-10"
-              placeholder="Search cars..."
+              placeholder="Search agents..."
             />
           </div>
         </div>
 
-        {/* Region */}
+        {/* City */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Region
+            City
           </label>
           <select
-            value={filters.region}
-            onChange={(e) => handleFilterChange('region', e.target.value)}
+            value={filters.city}
+            onChange={(e) => handleFilterChange('city', e.target.value)}
             className="select"
           >
-            <option value="">All regions</option>
-            {regions.map(region => (
-              <option key={region} value={region}>{region}</option>
+            <option value="">All cities</option>
+            {cities.map(city => (
+              <option key={city} value={city}>{city}</option>
             ))}
           </select>
         </div>

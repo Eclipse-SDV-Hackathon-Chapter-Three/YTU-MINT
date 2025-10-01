@@ -1,0 +1,4 @@
+{"level":"info","message":"Created agent car1-munich in city Munich with 2 ECUs","service":"fleet-dashboard","timestamp":"2025-09-30T23:43:27.727Z"}
+{"level":"info","message":"Created agent car2-berlin in city Berlin with 2 ECUs","service":"fleet-dashboard","timestamp":"2025-09-30T23:43:27.732Z"}
+{"level":"info","message":"Agent car1-munich ECU ecu-powertrain updated from v1.0 to v2.0","service":"fleet-dashboard","timestamp":"2025-09-30T23:43:27.734Z"}
+{"level":"info","message":"Added ECU ecu-chassis to agent car1-munich","service":"fleet-dashboard","timestamp":"2025-09-30T23:43:27.737Z"}

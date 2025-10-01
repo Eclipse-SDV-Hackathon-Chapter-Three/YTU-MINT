@@ -10,6 +10,8 @@ import Cars from './pages/Cars';
 import Updates from './pages/Updates';
 import Monitoring from './pages/Monitoring';
 import Settings from './pages/Settings';
+import AnkaiosRpc from './pages/AnkaiosRpc';
+import AcmeDashboard from './components/AcmeDashboard';
 
 import { useWebSocket } from './hooks/useWebSocket';
 import { api } from './services/api';
@@ -116,6 +118,8 @@ function App() {
                 <Route path="/cars" element={<Cars />} />
                 <Route path="/updates" element={<Updates />} />
                 <Route path="/monitoring" element={<Monitoring />} />
+                <Route path="/ankaios-rpc" element={<AnkaiosRpc />} />
+                <Route path="/acme" element={<AcmeDashboard />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>
             </div>

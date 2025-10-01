@@ -2,25 +2,24 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { X, Car, MapPin, Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { carApi } from '../services/api';
+import { agentApi } from '../services/api';
 
 const CreateCarModal = ({ isOpen, onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
-  const regions = ['Munich', 'Berlin', 'Hamburg', 'Cologne', 'Frankfurt'];
+  const cities = ['Munich', 'Berlin', 'Hamburg', 'Cologne', 'Frankfurt'];
   const states = ['parked', 'driving'];
-  const versions = ['1.0.0', '1.1.0', '1.2.0', '1.3.0', '2.0.0'];
 
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      await carApi.create(data);
-      toast.success('Car created successfully');
+      await agentApi.create(data);
+      toast.success('Agent created successfully');
       reset();
       onSuccess();
     } catch (error) {
-      toast.error(`Failed to create car: ${error.message}`);
+      toast.error(`Failed to create agent: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +41,7 @@ const CreateCarModal = ({ isOpen, onClose, onSuccess }) => {
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
               <Car className="h-5 w-5 text-blue-600" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900">Create New Car</h3>
+            <h3 className="text-lg font-medium text-gray-900">Create New Agent</h3>
           </div>
           <button
             onClick={handleClose}
@@ -54,25 +53,25 @@ const CreateCarModal = ({ isOpen, onClose, onSuccess }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Region */}
+          {/* City */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Region
+              City
             </label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <select
-                {...register('region', { required: 'Region is required' })}
+                {...register('city', { required: 'City is required' })}
                 className="select pl-10"
               >
-                <option value="">Select a region</option>
-                {regions.map(region => (
-                  <option key={region} value={region}>{region}</option>
+                <option value="">Select a city</option>
+                {cities.map(city => (
+                  <option key={city} value={city}>{city}</option>
                 ))}
               </select>
             </div>
-            {errors.region && (
-              <p className="mt-1 text-sm text-red-600">{errors.region.message}</p>
+            {errors.city && (
+              <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
             )}
           </div>
 
@@ -100,20 +99,7 @@ const CreateCarModal = ({ isOpen, onClose, onSuccess }) => {
             )}
           </div>
 
-          {/* Version */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Initial Version
-            </label>
-            <select
-              {...register('version')}
-              className="select"
-            >
-              {versions.map(version => (
-                <option key={version} value={version}>{version}</option>
-              ))}
-            </select>
-          </div>
+          {/* Note: Version is automatically assigned to ECUs */}
 
           {/* Custom Metadata */}
           <div>

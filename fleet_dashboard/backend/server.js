@@ -7,7 +7,12 @@ const path = require('path');
 require('dotenv').config();
 
 const CarManager = require('./services/CarManager');
+const AgentManager = require('./services/AgentManager');
 const AnkaiosController = require('./services/AnkaiosController');
+const AnkaiosRpcController = require('./services/AnkaiosRpcController');
+const AnkaiosGrpcClient = require('./services/AnkaiosGrpcClient');
+const CarAgentManager = require('./services/CarAgentManager');
+const AcmeController = require('./services/AcmeController');
 const SymphonyProvider = require('./services/SymphonyProvider');
 const WebSocketManager = require('./services/WebSocketManager');
 const logger = require('./utils/logger');
@@ -23,7 +28,12 @@ app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // Initialize services
 const carManager = new CarManager();
+const agentManager = new AgentManager();
 const ankaiosController = new AnkaiosController();
+const ankaiosRpcController = new AnkaiosRpcController();
+const ankaiosGrpcClient = new AnkaiosGrpcClient();
+const carAgentManager = new CarAgentManager();
+const acmeController = new AcmeController();
 const symphonyProvider = new SymphonyProvider();
 const wsManager = new WebSocketManager();
 
@@ -33,10 +43,20 @@ wsManager.initialize(wss);
 
 // API Routes
 const carRoutes = require('./routes/cars')(carManager, ankaiosController, symphonyProvider, wsManager);
+const agentRoutes = require('./routes/agents')(agentManager, ankaiosController, symphonyProvider, wsManager, ankaiosGrpcClient);
+const ankaiosRpcRoutes = require('./routes/ankaios-rpc')(ankaiosRpcController);
+const ankaiosGrpcRoutes = require('./routes/ankaios-grpc')(ankaiosGrpcClient);
+const carAgentRoutes = require('./routes/car-agents')(carAgentManager);
+const acmeRoutes = require('./routes/acme')(acmeController);
 const updateRoutes = require('./routes/updates')(carManager, symphonyProvider, wsManager);
 const monitoringRoutes = require('./routes/monitoring')(carManager, ankaiosController, wsManager);
 
 app.use('/api/cars', carRoutes);
+app.use('/api/agents', agentRoutes);
+app.use('/api/ankaios', ankaiosRpcRoutes);
+app.use('/api/ankaios-grpc', ankaiosGrpcRoutes);
+app.use('/api/car-agents', carAgentRoutes);
+app.use('/api/acme', acmeRoutes);
 app.use('/api/updates', updateRoutes);
 app.use('/api/monitoring', monitoringRoutes);
 
@@ -47,7 +67,12 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     services: {
       carManager: carManager.isHealthy(),
+      agentManager: agentManager.isHealthy(),
       ankaiosController: ankaiosController.isHealthy(),
+      ankaiosRpcController: ankaiosRpcController.isHealthy(),
+      ankaiosGrpcClient: ankaiosGrpcClient.isHealthy(),
+      carAgentManager: carAgentManager.isHealthy(),
+      acmeController: acmeController.isHealthy(),
       symphonyProvider: symphonyProvider.isHealthy()
     }
   });
