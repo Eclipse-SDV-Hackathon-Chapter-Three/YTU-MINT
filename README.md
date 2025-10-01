@@ -11,20 +11,17 @@
 ### Team Members  
 | Name | GitHub Handle | Role(s) |
 |-------|---------------|---------|
-| Kaan Özarslan | kaanoz1 | Team Lead |
-| Arda Eren Mike | ardamayk | Developer |
-| Şevval Gizem Kırbaş | svvlgizem | Developer |
-| Burak Oflaz | burakoflaz | Developer |
-| Ibrahim Ethem Topcu | iethem | Developer |
+| Kaan Özarslan | [kaanoz1](https://github.com/kaanoz1) | Team Lead |
+| Arda Eren Mike | [ardamayk](https://github.com/ardamayk) | Developer |
+| Şevval Gizem Kırbaş | [svvlgizem](https://github.com/svvlgizem) | Developer |
+| Burak Oflaz | [burakoflaz](https://github.com/burakoflaz) | Developer |
+| Ibrahim Ethem Topcu | [iethem](https://github.com/iethem) | Developer |
 
 ### Challenge  
 **Update Possible / OTA Updates for ECUs**
 
-### Core Idea  
-- Build a cloud-to-vehicle OTA update system using **Eclipse Symphony**, **uProtocol**, and **Ankaios**.  
-- Enable secure, reliable updates with rollback capability and multi-site rollout support.  
-- Sketch/diagram: You can create a simple **Mermaid chart** showing cloud → Symphony → Ankaios agents → vehicle ECUs.
-
+### Core Idea 
+![OTA System Diagram](assets/chart.png "Core Idea Diagram")
 ---
 
 ## 2. How Do You Work
