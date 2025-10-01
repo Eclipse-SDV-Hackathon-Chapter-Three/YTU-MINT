@@ -23,7 +23,7 @@ class AcmeController {
       if (stderr) {
         logger.warn(`Ankaios get agents stderr: ${stderr}`);
       }
-      
+
       // Parse the output to extract agent information
       const agents = this.parseAgentsOutput(stdout);
       logger.info(`Retrieved ${agents.length} agents from Ankaios`);
@@ -45,11 +45,11 @@ class AcmeController {
       if (stderr) {
         logger.warn(`Ankaios get workloads stderr: ${stderr}`);
       }
-      
+
       // Parse workloads and filter by agent
       const workloads = this.parseWorkloadsOutput(stdout);
       const agentWorkloads = workloads.filter(w => w.agent === agentName);
-      
+
       logger.info(`Retrieved ${agentWorkloads.length} workloads for agent ${agentName}`);
       return agentWorkloads;
     } catch (error) {
@@ -68,7 +68,7 @@ class AcmeController {
       if (stderr) {
         logger.warn(`Ankaios get workloads stderr: ${stderr}`);
       }
-      
+
       const workloads = this.parseWorkloadsOutput(stdout);
       logger.info(`Retrieved ${workloads.length} total workloads from Ankaios`);
       return workloads;
@@ -122,7 +122,7 @@ class AcmeController {
   async deployToSymphony(targetJson) {
     try {
       logger.info(`Deploying via Symphony: ${targetJson.metadata.name}`);
-      
+
       // First, authenticate with Symphony
       const authResponse = await fetch(`${this.symphonyApiUrl}/users/auth`, {
         method: 'POST',
@@ -148,7 +148,9 @@ class AcmeController {
 
       // Create Symphony-compatible target
       const symphonyTarget = this.createSymphonyTarget(targetJson);
-      
+
+      console.log(JSON.stringify(symphonyTarget, null, 2));
+
       // Register target with Symphony
       const registerResponse = await fetch(`${this.symphonyApiUrl}/targets/registry/${targetJson.metadata.name}`, {
         method: 'POST',
@@ -192,10 +194,10 @@ class AcmeController {
 
       logger.info(`Symphony deployment successful: ${deploymentResult.deploymentId}`);
       return deploymentResult;
-      
+
     } catch (error) {
       logger.error(`Error deploying via Symphony: ${error.message}`);
-      
+
       // Fallback to direct Target Provider if Symphony is not available
       logger.warn('Symphony not available, falling back to direct Target Provider');
       return await this.deployDirectly(targetJson);
@@ -210,21 +212,21 @@ class AcmeController {
   createSymphonyTarget(targetJson) {
     const workload = targetJson.spec.deployment.workload;
     const targetAgents = targetJson.spec.targetSelector.matchLabels["ankaios.io/agent"].split(",");
-    
+
     return {
       metadata: {
         name: targetJson.metadata.name
       },
       spec: {
-        forceRedeploy: true,
+        displayName: targetJson.metadata.name,
         components: targetAgents.map(agentName => ({
           name: workload.name,
           type: "ankaios",
           properties: {
             "ankaios.runtime": "podman",
             "ankaios.agent": agentName,
-            "ankaios.restartPolicy": "ON_FAILURE",
-            "ankaios.runtimeConfig": `image: ${workload.image}\ncommandOptions: ["--name","${workload.name}-${agentName}","--env","ECU_TYPE=${workload.name}","--env","ECU_VERSION=${workload.version}","--env","AGENT_NAME=${agentName}"]`
+            "ankaios.restartPolicy": "ALWAYS",
+            "ankaios.runtimeConfig": "image: docker.io/library/nginx\ncommandOptions: [\"-p\", \"8080:80\"]"
           }
         })),
         topologies: [
@@ -234,9 +236,9 @@ class AcmeController {
                 role: "ankaios",
                 provider: "providers.target.mqtt",
                 config: {
-                  name: "ankaios-target-provider",
+                  name: "proxy",
                   brokerAddress: "tcp://127.0.0.1:1883",
-                  clientID: "symphony-ankaios",
+                  clientID: "symphony",
                   requestTopic: "coa-request",
                   responseTopic: "coa-response",
                   timeoutSeconds: "30"
@@ -257,7 +259,7 @@ class AcmeController {
   async deployDirectly(targetJson) {
     try {
       logger.info(`Deploying directly via Target Provider: ${targetJson.metadata.name}`);
-      
+
       const targetProviderResponse = await fetch(`${this.targetProviderUrl}/deploy`, {
         method: 'POST',
         headers: {
@@ -274,7 +276,7 @@ class AcmeController {
       }
 
       const providerResult = await targetProviderResponse.json();
-      
+
       return {
         success: providerResult.success,
         deploymentId: providerResult.deployment_id || `direct-${Date.now()}`,
@@ -285,10 +287,10 @@ class AcmeController {
         results: providerResult.results,
         note: "Deployed directly (Symphony not available)"
       };
-      
+
     } catch (error) {
       logger.error(`Direct deployment failed: ${error.message}`);
-      
+
       return {
         success: false,
         deploymentId: `failed-${Date.now()}`,
@@ -308,7 +310,7 @@ class AcmeController {
   parseAgentsOutput(output) {
     const lines = output.trim().split('\n');
     const agents = [];
-    
+
     // Skip header line
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -325,7 +327,7 @@ class AcmeController {
         }
       }
     }
-    
+
     return agents;
   }
 
@@ -337,7 +339,7 @@ class AcmeController {
   parseWorkloadsOutput(output) {
     const lines = output.trim().split('\n');
     const workloads = [];
-    
+
     // Skip header line
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -354,7 +356,7 @@ class AcmeController {
         }
       }
     }
-    
+
     return workloads;
   }
 
