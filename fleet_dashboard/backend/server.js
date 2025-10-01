@@ -61,7 +61,7 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 server.listen(PORT, () => {
   logger.info(`ACME Fleet Backend running on port ${PORT}`);
 });

@@ -37,14 +37,24 @@ Web UI → ACME Controller → Symphony → MQTT → Target Provider → Ankaios
    ./setup-symphony.sh
    ```
 
-3. **Start Backend:**
+3. **Start Services:**
    ```bash
-   cd /home/ibrahim/challenge-mission-update-possible/fleet_dashboard/backend
-   npm start
+   cd /home/ibrahim/challenge-mission-update-possible/fleet_dashboard
+   ./start-dev.sh
+   ```
+   
+   Or start individually:
+   ```bash
+   # Backend (Port 3002)
+   cd backend && npm start
+   
+   # Frontend (Port 3001) 
+   cd frontend && npm start
    ```
 
 4. **Access Web UI:**
-   - Open http://localhost:3001
+   - Frontend: http://localhost:3001
+   - Backend API: http://localhost:3002
    - Select ECU workload and agents
    - Click "Deploy"
 
@@ -97,18 +107,23 @@ fleet_dashboard/
 
 ## 🛠️ Development
 
-### Backend
+### Backend (Port 3002)
 ```bash
 cd backend
 npm install
 npm start
 ```
 
-### Frontend
+### Frontend (Port 3001)
 ```bash
 cd frontend
 npm install
 npm start
+```
+
+### Both Services
+```bash
+./start-dev.sh
 ```
 
 ### Target Provider
@@ -133,6 +148,7 @@ npm start
 - ✅ **Dynamic Workloads**: Support for different ECU types
 - ✅ **Multi-Agent Deployment**: Deploy to multiple agents at once
 - ✅ **Real-time Status**: Live monitoring of agent and workload status
+- ✅ **Clean Architecture**: Frontend (3001) + Backend (3002) + Target Provider (8081)
 
 ## 🔧 Configuration
 

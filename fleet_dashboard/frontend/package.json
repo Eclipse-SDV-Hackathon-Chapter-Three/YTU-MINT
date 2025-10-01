@@ -52,5 +52,5 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32"
   },
-  "proxy": "http://localhost:3001"
+  "proxy": "http://localhost:3002"
 }
