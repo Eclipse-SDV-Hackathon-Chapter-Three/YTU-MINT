@@ -7,7 +7,8 @@ const execAsync = util.promisify(exec);
 class AcmeController {
   constructor() {
     this.ankaiosPath = process.env.ANKAIOS_PATH || '/usr/local/bin/ank';
-    this.symphonyApiUrl = process.env.SYMPHONY_API_URL || 'http://localhost:8080';
+    this.symphonyApiUrl = process.env.SYMPHONY_API_URL || 'http://localhost:8082/v1alpha2';
+    this.targetProviderUrl = process.env.TARGET_PROVIDER_URL || 'http://localhost:8080';
     this.logger = logger;
     logger.info('AcmeController initialized');
   }
@@ -114,30 +115,188 @@ class AcmeController {
   }
 
   /**
-   * Deploy to Symphony using Target.json
+   * Deploy via Symphony (proper Symphony flow)
    * @param {Object} targetJson - Target.json structure
    * @returns {Promise<Object>} - Deployment result
    */
   async deployToSymphony(targetJson) {
     try {
-      // In a real implementation, this would make an HTTP request to Symphony API
-      // For now, we'll simulate the deployment
-      logger.info(`Deploying to Symphony: ${targetJson.metadata.name}`);
+      logger.info(`Deploying via Symphony: ${targetJson.metadata.name}`);
       
-      // Simulate deployment process
+      // First, authenticate with Symphony
+      const authResponse = await fetch(`${this.symphonyApiUrl}/users/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: 'admin',
+          password: ''
+        })
+      });
+
+      if (!authResponse.ok) {
+        throw new Error(`Symphony authentication failed: ${authResponse.status}`);
+      }
+
+      const authResult = await authResponse.json();
+      const token = authResult.accessToken;
+
+      if (!token) {
+        throw new Error('Failed to get Symphony authentication token');
+      }
+
+      // Create Symphony-compatible target
+      const symphonyTarget = this.createSymphonyTarget(targetJson);
+      
+      // Register target with Symphony
+      const registerResponse = await fetch(`${this.symphonyApiUrl}/targets/registry/${targetJson.metadata.name}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(symphonyTarget)
+      });
+
+      if (!registerResponse.ok) {
+        throw new Error(`Failed to register target with Symphony: ${registerResponse.status}`);
+      }
+
+      // Deploy via Symphony
+      const deployResponse = await fetch(`${this.symphonyApiUrl}/targets/registry/${targetJson.metadata.name}/deploy`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          target: targetJson.metadata.name,
+          components: [targetJson.spec.deployment.workload.name]
+        })
+      });
+
+      if (!deployResponse.ok) {
+        throw new Error(`Symphony deployment failed: ${deployResponse.status}`);
+      }
+
       const deploymentResult = {
         success: true,
-        deploymentId: `deployment-${Date.now()}`,
+        deploymentId: `symphony-${Date.now()}`,
         targetAgents: targetJson.spec.targetSelector.matchLabels["ankaios.io/agent"].split(","),
         status: "deployed",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        message: "Deployed via Symphony",
+        symphonyTarget: symphonyTarget
       };
 
-      logger.info(`Deployment successful: ${deploymentResult.deploymentId}`);
+      logger.info(`Symphony deployment successful: ${deploymentResult.deploymentId}`);
       return deploymentResult;
+      
     } catch (error) {
-      logger.error(`Error deploying to Symphony: ${error.message}`);
-      throw error;
+      logger.error(`Error deploying via Symphony: ${error.message}`);
+      
+      // Fallback to direct Target Provider if Symphony is not available
+      logger.warn('Symphony not available, falling back to direct Target Provider');
+      return await this.deployDirectly(targetJson);
+    }
+  }
+
+  /**
+   * Create Symphony-compatible target from ACME target
+   * @param {Object} targetJson - ACME target structure
+   * @returns {Object} - Symphony target structure
+   */
+  createSymphonyTarget(targetJson) {
+    const workload = targetJson.spec.deployment.workload;
+    const targetAgents = targetJson.spec.targetSelector.matchLabels["ankaios.io/agent"].split(",");
+    
+    return {
+      metadata: {
+        name: targetJson.metadata.name
+      },
+      spec: {
+        forceRedeploy: true,
+        components: targetAgents.map(agentName => ({
+          name: workload.name,
+          type: "ankaios",
+          properties: {
+            "ankaios.runtime": "podman",
+            "ankaios.agent": agentName,
+            "ankaios.restartPolicy": "ON_FAILURE",
+            "ankaios.runtimeConfig": `image: ${workload.image}\ncommandOptions: ["--name","${workload.name}-${agentName}","--env","ECU_TYPE=${workload.name}","--env","ECU_VERSION=${workload.version}","--env","AGENT_NAME=${agentName}"]`
+          }
+        })),
+        topologies: [
+          {
+            bindings: [
+              {
+                role: "ankaios",
+                provider: "providers.target.mqtt",
+                config: {
+                  name: "ankaios-target-provider",
+                  brokerAddress: "tcp://127.0.0.1:1883",
+                  clientID: "symphony-ankaios",
+                  requestTopic: "coa-request",
+                  responseTopic: "coa-response",
+                  timeoutSeconds: "30"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    };
+  }
+
+  /**
+   * Fallback: Deploy directly to Target Provider
+   * @param {Object} targetJson - Target structure
+   * @returns {Promise<Object>} - Deployment result
+   */
+  async deployDirectly(targetJson) {
+    try {
+      logger.info(`Deploying directly via Target Provider: ${targetJson.metadata.name}`);
+      
+      const targetProviderResponse = await fetch(`${this.targetProviderUrl}/deploy`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          target: targetJson,
+          action: 'deploy'
+        })
+      });
+
+      if (!targetProviderResponse.ok) {
+        throw new Error(`Target Provider error: ${targetProviderResponse.status}`);
+      }
+
+      const providerResult = await targetProviderResponse.json();
+      
+      return {
+        success: providerResult.success,
+        deploymentId: providerResult.deployment_id || `direct-${Date.now()}`,
+        targetAgents: targetJson.spec.targetSelector.matchLabels["ankaios.io/agent"].split(","),
+        status: providerResult.success ? "deployed" : "failed",
+        timestamp: new Date().toISOString(),
+        message: providerResult.message,
+        results: providerResult.results,
+        note: "Deployed directly (Symphony not available)"
+      };
+      
+    } catch (error) {
+      logger.error(`Direct deployment failed: ${error.message}`);
+      
+      return {
+        success: false,
+        deploymentId: `failed-${Date.now()}`,
+        targetAgents: targetJson.spec.targetSelector.matchLabels["ankaios.io/agent"].split(","),
+        status: "failed",
+        timestamp: new Date().toISOString(),
+        error: error.message
+      };
     }
   }
 

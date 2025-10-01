@@ -128,44 +128,156 @@
   font-size: 0.9rem;
 }
 
-.workloads-table {
-  overflow-x: auto;
+.agent-workloads {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
 }
 
-.workloads-table table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.workloads-table th,
-.workloads-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.workloads-table th {
-  background: #f8f9fa;
-  font-weight: bold;
+.agent-workloads h4 {
+  margin: 0 0 10px 0;
   color: #2c3e50;
-}
-
-.state-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: bold;
 }
 
-.state-badge.running {
+.workload-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.running-workload {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid #3498db;
+}
+
+.workload-name {
+  font-size: 0.8rem;
+  color: #2c3e50;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workload-state {
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.workload-state.running {
   background: #27ae60;
   color: white;
 }
 
-.state-badge.pending {
+.workload-state.pending {
   background: #f39c12;
   color: white;
+}
+
+.workloads-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.workload-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: #f8f9fa;
+}
+
+.workload-card:hover {
+  border-color: #3498db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.workload-card.selected {
+  border-color: #27ae60;
+  background: #d5f4e6;
+}
+
+.workload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.workload-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.category-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.category-badge.critical {
+  background: #e74c3c;
+  color: white;
+}
+
+.category-badge.safety {
+  background: #f39c12;
+  color: white;
+}
+
+.category-badge.user-interface {
+  background: #9b59b6;
+  color: white;
+}
+
+.category-badge.comfort {
+  background: #3498db;
+  color: white;
+}
+
+.category-badge.autonomous {
+  background: #1abc9c;
+  color: white;
+}
+
+.workload-info p {
+  margin: 5px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.workload-description {
+  font-style: italic;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.workload-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.workload-details p {
+  margin: 2px 0;
+  font-size: 0.85rem;
 }
 
 .deployment-section {
@@ -184,43 +296,70 @@
 }
 
 .deployment-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  align-items: end;
-}
-
-.form-group {
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
-.form-group label {
-  font-weight: bold;
-  color: #2c3e50;
-  margin-bottom: 5px;
-}
-
-.form-group input {
-  padding: 10px;
-  border: 2px solid #e0e0e0;
-  border-radius: 5px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #3498db;
-}
-
+.selected-workload,
 .selected-agents {
-  grid-column: 1 / -1;
   padding: 15px;
   background: #f8f9fa;
   border-radius: 5px;
   border: 2px solid #e0e0e0;
   color: #555;
+}
+
+.selected-workload-info {
+  margin-top: 10px;
+}
+
+.selected-workload-info h4 {
+  margin: 0 0 5px 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.selected-workload-info p {
+  margin: 5px 0;
+  color: #666;
+  font-style: italic;
+}
+
+.workload-meta {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.workload-meta span {
+  background: #e9ecef;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.selected-agents-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.agent-tag {
+  background: #3498db;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.no-selection {
+  color: #999;
+  font-style: italic;
 }
 
 .deploy-btn {

@@ -1,0 +1,21 @@
+{
+  "name": "symphony-ankaios-target-provider",
+  "version": "1.0.0",
+  "description": "Symphony Target Provider for Ankaios deployments",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "js-yaml": "^4.1.0",
+    "mqtt": "^5.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["symphony", "ankaios", "target-provider", "ota", "automotive"],
+  "author": "Eclipse Symphony",
+  "license": "MIT"
+}

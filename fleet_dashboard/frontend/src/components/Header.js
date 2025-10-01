@@ -1,30 +1,19 @@
 import React from 'react';
-import { Menu, X, Wifi, WifiOff, Activity } from 'lucide-react';
+import { Wifi, WifiOff, Activity } from 'lucide-react';
 
-const Header = ({ sidebarOpen, setSidebarOpen, isConnected, health }) => {
+const Header = ({ isConnected, health }) => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Left side */}
           <div className="flex items-center">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
-            >
-              {sidebarOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-            
-            <div className="ml-4 lg:ml-0">
+            <div>
               <h1 className="text-xl font-semibold text-gray-900">
-                Fleet Dashboard
+                ACME Fleet Management
               </h1>
               <p className="text-sm text-gray-500">
-                Automotive OTA Update Management
+                Symphony + Ankaios OTA Updates
               </p>
             </div>
           </div>
@@ -54,9 +43,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isConnected, health }) => {
                   <div className="flex items-center space-x-2">
                     <span>Services:</span>
                     <div className="flex space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${health.services?.carManager ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                      <div className={`w-2 h-2 rounded-full ${health.services?.ankaiosController ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                      <div className={`w-2 h-2 rounded-full ${health.services?.symphonyProvider ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                      <div className={`w-2 h-2 rounded-full ${health.services?.acmeController ? 'bg-green-400' : 'bg-red-400'}`}></div>
                     </div>
                   </div>
                 </div>

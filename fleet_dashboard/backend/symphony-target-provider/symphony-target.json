@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "name": "ankaios-fleet-target"
+  },
+  "spec": {
+    "forceRedeploy": true,
+    "components": [
+      {
+        "name": "ecu-powertrain",
+        "type": "ankaios",
+        "properties": {
+          "ankaios.runtime": "podman",
+          "ankaios.agent": "test_agent",
+          "ankaios.restartPolicy": "ON_FAILURE",
+          "ankaios.runtimeConfig": "image: ghcr.io/eclipse-sdv-hackathon-chapter-three/mission-update/update_trigger:latest\ncommandOptions: [\"--name\",\"ecu-powertrain\",\"--env\",\"ECU_TYPE=ecu-powertrain\",\"--env\",\"ECU_VERSION=v2.1\"]"
+        }
+      }
+    ],
+    "topologies": [
+      {
+        "bindings": [
+          {
+            "role": "ankaios",
+            "provider": "providers.target.mqtt",
+            "config": {
+              "name": "ankaios-target-provider",
+              "brokerAddress": "tcp://127.0.0.1:1883",
+              "clientID": "symphony-ankaios",
+              "requestTopic": "coa-request",
+              "responseTopic": "coa-response",
+              "timeoutSeconds": "30"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
